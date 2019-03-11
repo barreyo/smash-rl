@@ -4,6 +4,8 @@
 ###
 *.slp
 src/
+.vscode/
+data/
 
 
 ###
