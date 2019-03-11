@@ -1,2 +1,1 @@
-py-slippi
-
+-e git://github.com/barreyo/py-slippi.git#egg=py-slippi
