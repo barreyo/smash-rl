@@ -3,6 +3,8 @@
 # --- PROJECT ---
 ###
 *.slp
+.vscode/
+data/
 
 
 ###
