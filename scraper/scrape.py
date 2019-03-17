@@ -12,7 +12,6 @@ BASE_URL = 'https://api-js-dot-slippi.appspot.com/'
 DL_URL = 'https://storage.googleapis.com/slippi.appspot.com{replay_path}'
 MAX_ATTEMPTS = 3
 PER_PAGE = 100
-TOURNAMENT_ID = 40
 
 GRAPHQL = """
 fragment participantChiclet on Participant {
@@ -103,12 +102,14 @@ def download_file(url):
   print("Downloading replay: {}".format(url))
   local_filename = os.path.join('./data', url.split('/')[-1])
   r = requests.get(DL_URL.format(replay_path=url), stream=True)
-  with open(local_filename, 'wb') as f:
+  with open(local_filename, 'wb+') as f:
+    r.raw.decode_content = True
     shutil.copyfileobj(r.raw, f)
 
 if __name__ == "__main__":
   Path('./data/').mkdir(exist_ok=True, parents=True)
   p = Pool(20)
-  get_all_replays(TOURNAMENT_ID)
+  for t in [3, 40]: # Tournaments
+    get_all_replays(t)
   p.terminate()
   p.join()
