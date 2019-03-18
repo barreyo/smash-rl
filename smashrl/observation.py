@@ -2,6 +2,8 @@
 
 from collections import namedtuple
 
+import numpy as np
+
 Position = namedtuple('Position', ['x', 'y'])
 
 
@@ -25,12 +27,32 @@ class Observation():
         enemy_percent -- Float denoting enemy's life as percentage
 
         """
+        assert player_stocks >= 0 and enemy_stocks >= 0, \
+            "Stocks cannot be negative"
+        assert player_percent >= 0.0 and enemy_percent >= 0.0, \
+            "Player health percentage has to be a positive value"
+
         self.player_position = player_pos
         self.enemy_position = enemy_pos
         self.player_stocks = player_stocks
         self.enemy_stocks = enemy_stocks
         self.player_percent = player_percent
         self.enemy_percent = enemy_percent
+
+    def as_array(self) -> np.array:
+        """
+        Return observation as flattened numpy array.
+
+        Format:
+        [px, py, ex, ey, p_stock, e_stock, p_percent, e_percent], where
+
+          'p' denotes player
+          'e' denotes enemy
+        """
+        return np.array([self.player_position.x, self.player_position.y,
+                         self.enemy_position.x, self.enemy_position.y,
+                         float(self.player_stocks), float(self.enemy_stocks),
+                         self.player_percent, self.enemy_percent])
 
     def __str__(self):  # noqa
         return f'Observation(player_state=({self.player_position}, ' \
