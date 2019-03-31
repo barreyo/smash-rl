@@ -6,7 +6,8 @@ import logging
 import functools
 import time
 
-from slippi.event import Buttons
+from slippi.event import Buttons # TODO: Move in to "dolphin"?
+
 
 def bits(n):
     while n:
@@ -14,7 +15,7 @@ def bits(n):
         yield b
         n ^= b
 
-class Pad:
+class DolphinPad:
     """
     Control dolphin emulator through pipes.
     """

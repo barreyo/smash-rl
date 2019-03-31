@@ -1,13 +1,14 @@
 """Observation of a single frame."""
 
 from collections import namedtuple
-
 import numpy as np
+
+from framework.observation import Observation
 
 Position = namedtuple('Position', ['x', 'y'])
 
 
-class Observation():
+class SuperSmashBrosMeleeObservation(Observation):
     """Class denoting the state of a frame."""
 
     def __init__(self, player_pos: Position, enemy_pos: Position,
