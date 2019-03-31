@@ -184,7 +184,7 @@ STATE_TO_INDEX_LOOKUP = {tuple(vl): idx
                          for idx, vl in enumerate(VALID_ACTIONS)}
 
 
-class SuperSmashBrosMeleeAction(Action):
+class SSBMAction(Action):
     """Denoting an action taken in a single frame."""
 
     def __init__(self, trigger: int = 0, cstick_right: int = 0,
@@ -224,14 +224,14 @@ class SuperSmashBrosMeleeAction(Action):
         return 'ControllerState(' + str(self.state) + ')'
 
 
-def reverse_action_lookup(controller_state: Union[np.array, SuperSmashBrosMeleeAction]) -> int:  # noqa
+def reverse_action_lookup(controller_state: Union[np.array, SSBMAction]) -> int:  # noqa
     """
     Lookup the action index of this controller state.
 
     Arguments:
     controller_state -- A numpy array or a ControllerState object
     """
-    if isinstance(controller_state, SuperSmashBrosMeleeAction):
+    if isinstance(controller_state, SSBMAction):
         return controller_state.as_index()
 
     return STATE_TO_INDEX_LOOKUP[tuple(controller_state)]

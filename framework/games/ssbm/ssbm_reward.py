@@ -4,7 +4,7 @@ from framework.reward import Reward
 
 
 
-class SimpleSSMMRewardState(Reward):
+class SimpleSSBMRewardState(Reward):
 
     LIFE_LOSS_COST = -1.0
     LIFE_INFLICT_COST = 1.0

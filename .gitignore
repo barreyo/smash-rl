@@ -6,7 +6,7 @@
 src/
 .vscode/
 data/
-
+*.pkl
 
 ###
 # --- OS X ---
