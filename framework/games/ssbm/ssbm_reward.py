@@ -1,22 +1,18 @@
 """Cost/reward function implementations."""
 
-
-class RewardState():
-
-    def get_cost(self):
-        raise NotImplementedError()
-
-    def reset(self):
-        raise NotImplementedError()
+from framework.reward import Reward
 
 
-class SimpleSSMMRewardState(RewardState):
+
+class SimpleSSMMRewardState(Reward):
 
     LIFE_LOSS_COST = -1.0
     LIFE_INFLICT_COST = 1.0
     STOCK_LOSS_COST = -100.0
     STOCK_INFLICT_COST = 100.0
     TIMESTEP_COST = -0.05
+
+    # TODO: Read in data from observations. Update this class to implement "cost" fn from the parent class.
 
     def __init__(self, starting_stock: int):
         self.starting_stock = starting_stock

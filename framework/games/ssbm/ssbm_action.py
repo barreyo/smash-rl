@@ -1,8 +1,10 @@
 """Classes denoting different actions."""
 
 from typing import Union
-
 import numpy as np
+
+from framework.action import Action
+
 
 N_LOGICAL_INPUTS = 16
 VALID_ACTIONS = [
@@ -182,7 +184,7 @@ STATE_TO_INDEX_LOOKUP = {tuple(vl): idx
                          for idx, vl in enumerate(VALID_ACTIONS)}
 
 
-class ControllerState():
+class SuperSmashBrosMeleeAction(Action):
     """Denoting an action taken in a single frame."""
 
     def __init__(self, trigger: int = 0, cstick_right: int = 0,
@@ -222,14 +224,14 @@ class ControllerState():
         return 'ControllerState(' + str(self.state) + ')'
 
 
-def reverse_action_lookup(controller_state: Union[np.array, ControllerState]) -> int:  # noqa
+def reverse_action_lookup(controller_state: Union[np.array, SuperSmashBrosMeleeAction]) -> int:  # noqa
     """
     Lookup the action index of this controller state.
 
     Arguments:
     controller_state -- A numpy array or a ControllerState object
     """
-    if isinstance(controller_state, ControllerState):
+    if isinstance(controller_state, SuperSmashBrosMeleeAction):
         return controller_state.as_index()
 
     return STATE_TO_INDEX_LOOKUP[tuple(controller_state)]

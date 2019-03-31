@@ -6,7 +6,7 @@ import time
 
 with Pad('/Users/kostas/Library/Application Support/Dolphin/Pipes/pipe') as pad:
   pad.press_release_button(Buttons.Logical.START)
-  time.sleep(5)
+  time.sleep(2)
   pad.press_release_button(Buttons.Logical.START)
   time.sleep(5)
   pad.press_release_button(Buttons.Logical.A)

@@ -1,0 +1,4 @@
+
+
+class SuperSmashMelee():
+    pass

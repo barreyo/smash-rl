@@ -2,9 +2,9 @@
 
 from smashrl.action import ControllerState
 from smashrl.observation import Observation
+from framework.agent import Agent
 
-
-class SSMMAgent():
+class SSBMAgent(Agent):
 
     def __init__(self):
         pass
