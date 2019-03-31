@@ -82,11 +82,11 @@ def format_training_data(games: List[Game]) -> List[List[
                 s2.append(p2_frame_tuple)
 
         if s1:
-            log.info('Adding game session for p1')
+            log.info('Adding game session for P1')
             training_data.append(s1)
 
         if s2:
-            log.info('Adding game session for p2')
+            log.info('Adding game session for P2')
             training_data.append(s2)
 
     return training_data
@@ -105,6 +105,7 @@ def run_offline_training_sequence(agent, cost_function, games):
         rewards and gives the cost for each simulation step
     games -- A list of Slippi game objects to use for training
     """
+    # Stock should be read from Replay
     reward_state = SimpleSSMMRewardState(DEFAULT_STOCK)
 
     log.info('Starting training sequence')

@@ -7,6 +7,7 @@ import numpy as np
 N_LOGICAL_INPUTS = 16
 VALID_ACTIONS = [
     # No action, i.e. idle
+    # TODO: Reduce invalid actions. Consolidate.
     np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
     np.array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]),
     np.array([0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
@@ -205,15 +206,15 @@ class ControllerState():
     def __clamp_state(self):
         self.state = [1 if v < 0 else 0 for v in self.state]
 
-    def as_np_array(self) -> np.array:
+    def get_np_array(self) -> np.array:
         """Return the controller state as 1-dimensional(1,) numpy array."""
         return self.state
 
-    def as_index(self) -> int:
+    def get_index(self) -> int:
         """Return the Action index of this controller state."""
         return reverse_action_lookup(self.state)
 
-    def as_slippi_bitmask(self) -> int:
+    def get_slippi_bitmask(self) -> int:
         """Return action(s) as Slippi bitmask."""
         pass
 
