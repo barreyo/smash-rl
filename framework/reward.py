@@ -1,5 +1,7 @@
-from framework.observation import Observation
 from typing import List
+
+from framework.observation import Observation
+
 
 class Reward():
 

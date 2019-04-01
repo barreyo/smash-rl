@@ -1,10 +1,10 @@
 """Classes denoting different actions."""
 
 from typing import Union
+
 import numpy as np
 
 from framework.action import Action
-
 
 N_LOGICAL_INPUTS = 16
 VALID_ACTIONS = [

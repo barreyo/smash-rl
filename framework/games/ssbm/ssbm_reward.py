@@ -3,8 +3,7 @@
 from framework.reward import Reward
 
 
-
-class SimpleSSBMRewardState(Reward):
+class SimpleSSBMReward(Reward):
 
     LIFE_LOSS_COST = -1.0
     LIFE_INFLICT_COST = 1.0
@@ -12,10 +11,9 @@ class SimpleSSBMRewardState(Reward):
     STOCK_INFLICT_COST = 100.0
     TIMESTEP_COST = -0.05
 
-    # TODO: Read in data from observations. Update this class to implement "cost" fn from the parent class.
-
-    def __init__(self, starting_stock: int):
-        self.starting_stock = starting_stock
+    # TODO: Read in data from observations. Update this class to implement
+    #       "cost" fn from the parent class.
+    def __init__(self):
         self.prev_player_life = 0
         self.prev_enemy_life = 0
         self.prev_player_stock = self.starting_stock
@@ -45,8 +43,8 @@ class SimpleSSBMRewardState(Reward):
 
         return cost
 
-    def reset(self):
+    def reset(self) -> None:
         self.prev_player_life = 0
         self.prev_enemy_life = 0
-        self.prev_player_stock = self.starting_stock
-        self.prev_enemy_stock = self.starting_stock
+        self.prev_player_stock = 3
+        self.prev_enemy_stock = 3

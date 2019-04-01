@@ -1,15 +1,18 @@
 """Handle data formatting from replays and offline training of the Agent."""
 
-import sys
 import logging
 import pickle
+import sys
 from typing import List, Tuple
+
+from framework.games.ssbm.ssbm_reward import SimpleSSBMReward
 
 # from smashrl.action import ControllerState
 # from smashrl.observation import Observation
 # from smashrl.reward_function import SimpleSSMMRewardState
 
 log = logging.getLogger(__name__)
+
 
 def run_offline_training_sequence(agent, cost_function, games):
     """
@@ -34,6 +37,13 @@ def run_offline_training_sequence(agent, cost_function, games):
 def _main():
     with open(sys.argv[1], 'rb') as f:
         dataset = pickle.load(f)
+
+    agent = None
+    reward_func = SimpleSSBMReward()
+    run_offline_training_sequence(agent, reward_func, dataset)
+
+    agent.save_
+
 
 if __name__ == "__main__":
     _main()

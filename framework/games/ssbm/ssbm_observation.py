@@ -1,6 +1,7 @@
 """Observation of a single frame."""
 
 from collections import namedtuple
+
 import numpy as np
 
 from framework.observation import Observation
