@@ -16,21 +16,21 @@ class SSBMAgent(Agent):
     def __init__(self):
         super().__init__(SSBMActionSpace())
         # TODO: xd
-        self.q = DQN(learning_rate=1.0)
+        self.q = DQN()
         self.e_greedy = EGreedy()
 
     def act(self, observation: SSBMObservation, timestep: int) -> SSBMAction:
         if self.e_greedy.predict(timestep):
-            return np.choice(self.action_space.random_action())
+            return np.random.choice(self.action_space.random_action())
 
-        actions = self.algorithm.predict(observation.get_np())
+        actions = self.q.predict(observation.get_np())
         best_action = np.argmax(actions)
         return self.action_space.action_to_index(best_action)
 
     def learn(self, observation: SSBMObservation, action: SSBMAction,
               reward: float):
 
-        self.q.train(observation.as_array(), action.get_index(), reward)
+        return self.q.train(observation.as_array(), action.get_index(), reward)
 
     def load(self):
         raise NotImplementedError()
