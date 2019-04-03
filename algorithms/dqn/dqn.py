@@ -11,7 +11,11 @@ class DQN():
         self.learning_rate = learning_rate
 
         self.hidden_layers = [128, 128, 64]
+
+        # TF placeholders
         self.observations = tf.placeholder(tf.float32, [None, observation_size], name="observations")
+        self.actions = tf.placeholder(tf.float32, [None, action_size], name="actions")
+        self.target_Q = tf.placeholder(tf.float32, [None, action_size], name="target_Q")
 
         inputs = self.observations
         initializer = tf.contrib.layers.xavier_initializer()
@@ -26,8 +30,15 @@ class DQN():
                     name=f"{name}_l_{i}"
                 )
 
-        self.target = tf.layers.dense(inputs, self.action_size,
-            activation=None, kernel_initializer=initializer, name="target")
+        self.output = tf.layers.dense(inputs, self.action_size,
+            activation=None, kernel_initializer=initializer, name="output")
+
+        # Calculate Q value, from network output, multiplied by curent action, and get the
+        # maximum value (using reduce_sum)
+        self.Q = tf.reduce_sum(tf.multiply(self.output, self.actions), axis=1)
+
+        self.loss = tf.reduce_mean(tf.square(self.target_Q - self.Q))
+        self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
 
     def predict(self, observation):
