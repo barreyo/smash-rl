@@ -33,6 +33,18 @@ def run_offline_training_sequence(agent, cost_function, games):
     log.info('Starting training sequence')
     log.info('Formatting data')
 
+    for game in format_training_data(games):
+
+        obs, action = game[0]
+        for ts, (new_obs, next_action) in enumerate(game[1:]):
+
+            reward = cost_function()
+            done = float(ts == (len(game) - 1))
+
+            agent.learn(obs, new_obs, action, reward, done)
+
+            obs, action = new_obs, next_action
+
 
 def _main():
     with open(sys.argv[1], 'rb') as f:
@@ -42,7 +54,7 @@ def _main():
     reward_func = SimpleSSBMReward()
     run_offline_training_sequence(agent, reward_func, dataset)
 
-    agent.save_
+    agent.save_model()
 
 
 if __name__ == "__main__":

@@ -1,17 +1,16 @@
-import os
-import sys
-import logging
-import pickle
-from typing import List, Tuple
-from pathlib import Path
-from multiprocessing import Pool
 
-from slippi import Game
+import logging
+import os
+import pickle
+import sys
+from multiprocessing import Pool
+from pathlib import Path
+from typing import List, Tuple
+
+from framework.games.ssbm.ssbm_action import SSBMAction
+from framework.games.ssbm.ssbm_observation import SSBMObservation
 from slippi import Game
 from slippi.id import InGameCharacter, Stage
-
-from framework.games.ssbm.ssbm_observation import SSBMObservation
-from framework.games.ssbm.ssbm_action import SSBMAction
 
 VALID_CHARACTERS = {InGameCharacter.FOX}
 VALID_STAGES = {Stage.BATTLEFIELD, Stage.FINAL_DESTINATION}
@@ -96,6 +95,7 @@ def format_training_data(games: List[Game]) -> List[List[
 
     return training_data
 
+
 def read_game(path: str) -> Game:
     if not path.endswith('.slp'):
         return None
@@ -108,7 +108,8 @@ def read_game(path: str) -> Game:
 
 def read_games(folder: str) -> List[Game]:
     p = Pool(8)
-    files = [os.path.join(folder, x) for x in os.listdir(folder) if x.endswith('.slp')]
+    files = [os.path.join(folder, x)
+             for x in os.listdir(folder) if x.endswith('.slp')]
     games = p.map(read_game, files)
     p.terminate()
     p.join()

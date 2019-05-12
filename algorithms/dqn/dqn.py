@@ -1,49 +1,101 @@
+
+from typing import List
+
 import tensorflow as tf
+
+from framework.action import Action
+from framework.observation import Observation
+from framework.reward import Reward
 
 
 class DQN():
 
-    def __init__(self, observation_size, action_size,
-                learning_rate, name='DQNetwork'):
-
+    def __init__(self, observation_size: int, action_size: int,
+                 learning_rate: float, gamma: float, batch_size: int = 32,
+                 name: str = 'DQNetwork'):
+        self.session = tf.Session()
         self.observation_size = observation_size
         self.action_size = action_size
         self.learning_rate = learning_rate
+        self.batch_size = batch_size
+        self.gamma = gamma
 
         self.hidden_layers = [128, 128, 64]
 
         # TF placeholders
-        self.observations = tf.placeholder(tf.float32, [None, observation_size], name="observations")
-        self.actions = tf.placeholder(tf.float32, [None, action_size], name="actions")
-        self.target_Q = tf.placeholder(tf.float32, [None, action_size], name="target_Q")
+        self.observations = tf.placeholder(tf.float32,
+                                           shape=[self.batch_size,
+                                                  observation_size],
+                                           name="observations")
+        self.observations_next = tf.placeholder(tf.float32,
+                                                shape=[self.batch_size,
+                                                       observation_size],
+                                                name="observations_next")
+        self.actions = tf.placeholder(tf.float32,
+                                      shape=(self.batch_size,),
+                                      name="actions")
+        # AKA Q(a', s')
+        self.rewards = tf.placeholder(tf.float32,
+                                      shape=(self.batch_size,),
+                                      name="rewards")
+        self.done_flags = tf.placeholder(tf.float32,
+                                         shape=(self.batch_size,),
+                                         name="done_flags")
 
-        inputs = self.observations
+        self.q_network = self._build_dense_network(self.observations,
+                                                   self.hidden_layers)
+
+        self.target_q_network = self._build_dense_network(
+            self.observations_next, self.hidden_layers, 'target_DQN_Network')
+
+        action_one_hot = tf.one_hot(
+            self.actions, self.action_size, 1.0, 0.0, name='action_one_hot')
+        prediction = tf.reduce_sum(
+            self.q_network * action_one_hot, reduction_indices=-1,
+            name='q_acted')
+
+        max_q_prim = tf.reduce_max(self.q_target_network, axis=-1)
+        y = self.rewards + (1.0 - self.done_flags) * self.gamma * max_q_prim
+
+        self.loss = tf.reduce_mean(
+            tf.square(prediction - tf.stop_gradient(y)), name='loss_mse_train')
+        self.optimizer = tf.train.RMSPropOptimizer(
+            self.learning_rate).minimize(self.loss)
+
+    def _build_dense_network(self, inputs, hidden_layers,
+                             network_name='DQNetwork'):
         initializer = tf.contrib.layers.xavier_initializer()
 
-        with tf.variable_scope(name):
-            for i, size in enumerate(self.hidden_layers):
+        with tf.variable_scope(network_name):
+            for i, size in enumerate(hidden_layers):
                 inputs = tf.layers.dense(
                     inputs,
                     size,
                     activation=tf.nn.relu,
                     kernel_initializer=initializer,
-                    name=f"{name}_l_{i}"
+                    name=f"{network_name}_l_{i}"
                 )
+        output = tf.layers.dense(
+            inputs, self.action_size, activation=None,
+            kernel_initializer=initializer, name="output")
 
-        self.output = tf.layers.dense(inputs, self.action_size,
-            activation=None, kernel_initializer=initializer, name="output")
+        return output
 
-        # Calculate Q value, from network output, multiplied by curent action, and get the
-        # maximum value (using reduce_sum)
-        self.Q = tf.reduce_sum(tf.multiply(self.output, self.actions), axis=1)
-
-        self.loss = tf.reduce_mean(tf.square(self.target_Q - self.Q))
-        self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
-
-
-    def predict(self, observation):
+    def predict(self, observations: Observation) -> Action:
         pass
 
-    def train(self, observation, action, reward) -> float:
-        # return loss
-        pass
+    def train(self, observations: List[Observation],
+              observations_next: List[Observation], actions: List[Action],
+              rewards: List[Reward], done_flags: List[float]) -> float:
+        feed_dict = {
+            self.observations: observations,
+            self.actions: actions,
+            self.rewards: rewards,
+            self.observations_next: observations_next,
+            self.done_flags: done_flags,
+        }
+        _, _, _, loss = self.session.run(
+            [self.optimizer, self.q_network,
+             self.target_q_network, self.loss],
+            feed_dict=feed_dict)
+        return loss
