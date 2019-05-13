@@ -4,8 +4,12 @@ import logging
 import pickle
 import sys
 from typing import List, Tuple
+import numpy as np
 
 from framework.games.ssbm.ssbm_reward import SimpleSSBMReward
+
+from smashrl.ssbm_agent import SSBMAgent
+from smashrl.dataset import format_training_data
 
 # from smashrl.action import ControllerState
 # from smashrl.observation import Observation
@@ -14,7 +18,7 @@ from framework.games.ssbm.ssbm_reward import SimpleSSBMReward
 log = logging.getLogger(__name__)
 
 
-def run_offline_training_sequence(agent, cost_function, games):
+def run_offline_training_sequence(agent, reward, games):
     """
     Run a training sequence of a set of games.
 
@@ -23,38 +27,54 @@ def run_offline_training_sequence(agent, cost_function, games):
 
     Arguments:
     agent -- The RL Agent object to train
-    cost_function -- A reward(cost) function object that tracks state of
-        rewards and gives the cost for each simulation step
+    reward -- A reward class with a cost function
     games -- A list of Slippi game objects to use for training
     """
-    # Stock should be read from Replay
-    # reward_state = SimpleSSMMRewardState(DEFAULT_STOCK)
 
     log.info('Starting training sequence')
     log.info('Formatting data')
 
-    for game in format_training_data(games):
-
+    for game_idx, game in enumerate(format_training_data(games)):
         obs, action = game[0]
+        observations = [obs]
+        losses = []
+        rewards = []
+
+        log.info(f"Starting game: {game_idx}/{len(games)}")
         for ts, (new_obs, next_action) in enumerate(game[1:]):
 
-            reward = cost_function()
+            reward = reward.cost(new_obs, observations, ts)
+            rewards.append(reward)
             done = float(ts == (len(game) - 1))
 
-            agent.learn(obs, new_obs, action, reward, done)
+            loss = agent.learn(obs, new_obs, action, reward, done)
+            losses.append(loss)
+            if ts % 100 == 0:
+                log.info(f"TS: {ts}, Loss: {loss}")
 
             obs, action = new_obs, next_action
+
+        log.info("Training summary:")
+        log.info(f"Average loss: {np.average(losses)}")
+        log.info(f"Average reward: {np.average(rewards)}")
+        log.info(f"Total TS: {len(game)}")
+        log.info("=====================")
+
 
 
 def _main():
     with open(sys.argv[1], 'rb') as f:
         dataset = pickle.load(f)
 
-    agent = None
-    reward_func = SimpleSSBMReward()
-    run_offline_training_sequence(agent, reward_func, dataset)
+    agent = SSBMAgent()
 
-    agent.save_model()
+    # TODO: Load pre-trained model
+    # agent.load()
+
+    reward = SimpleSSBMReward()
+    run_offline_training_sequence(agent, reward, dataset)
+
+    # agent.save()
 
 
 if __name__ == "__main__":

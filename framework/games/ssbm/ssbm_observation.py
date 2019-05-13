@@ -12,9 +12,13 @@ Position = namedtuple('Position', ['x', 'y'])
 class SSBMObservation(Observation):
     """Class denoting the state of a frame."""
 
-    def __init__(self, player_pos: Position, enemy_pos: Position,
-                 player_stocks: int, enemy_stocks: int, player_percent: float,
-                 enemy_percent: float):
+    @staticmethod
+    def size():
+        return len(SSBMObservation().as_array())
+
+    def __init__(self, player_pos: Position = (0,0), enemy_pos: Position = (0,0),
+                 player_stocks: int = 0, enemy_stocks: int = 0, player_percent: float = 0.0,
+                 enemy_percent: float = 0.0):
         """
         State of a single frame(timestep).
 
@@ -25,8 +29,8 @@ class SSBMObservation(Observation):
             player
         enemy_stocks -- Integer denoting the number of stocks left for the
             enemy
-        player_percent -- The players' life as percentage
-        enemy_percent -- Float denoting enemy's life as percentage
+        player_percent -- The players' knockout percentage (0->inf)
+        enemy_percent -- Float denoting enemy's knockout  percentage (0->inf)
 
         """
         assert player_stocks >= 0 and enemy_stocks >= 0, \

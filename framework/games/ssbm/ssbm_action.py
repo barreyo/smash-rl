@@ -206,7 +206,7 @@ class SSBMAction(Action):
         self.__clamp_state()
 
     def __clamp_state(self):
-        self.state = [1 if v < 0 else 0 for v in self.state]
+        self.state = [1 if v > 0 else 0 for v in self.state]
 
     def get_np_array(self) -> np.array:
         """Return the controller state as 1-dimensional(1,) numpy array."""

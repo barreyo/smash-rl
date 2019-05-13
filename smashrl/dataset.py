@@ -11,6 +11,7 @@ from framework.games.ssbm.ssbm_action import SSBMAction
 from framework.games.ssbm.ssbm_observation import SSBMObservation
 from slippi import Game
 from slippi.id import InGameCharacter, Stage
+from slippi.event import Buttons
 
 VALID_CHARACTERS = {InGameCharacter.FOX}
 VALID_STAGES = {Stage.BATTLEFIELD, Stage.FINAL_DESTINATION}
@@ -26,6 +27,26 @@ def is_valid_stage(stage: Stage) -> bool:  # noqa
 
 def is_valid_character(char: InGameCharacter) -> bool:  # noqa
     return char in VALID_CHARACTERS
+
+def create_action_from_button(logical):
+    return SSBMAction(
+        trigger=logical & Buttons.Logical.TRIGGER_ANALOG,
+        cstick_right=logical & Buttons.Logical.CSTICK_RIGHT,
+        cstick_left=logical & Buttons.Logical.CSTICK_LEFT,
+        cstick_down=logical & Buttons.Logical.CSTICK_DOWN,
+        cstick_up=logical & Buttons.Logical.CSTICK_UP,
+        joystick_right=logical & Buttons.Logical.JOYSTICK_RIGHT,
+        joystick_left=logical & Buttons.Logical.JOYSTICK_LEFT,
+        joystick_down=logical & Buttons.Logical.JOYSTICK_DOWN,
+        joystick_up=logical & Buttons.Logical.JOYSTICK_UP,
+        y=logical & Buttons.Logical.Y,
+        x=logical & Buttons.Logical.X,
+        b=logical & Buttons.Logical.B,
+        a=logical & Buttons.Logical.A,
+        l=logical & Buttons.Logical.L,
+        r=logical & Buttons.Logical.R,
+        z=logical & Buttons.Logical.Z
+    )
 
 
 def format_training_data(games: List[Game]) -> List[List[
@@ -72,7 +93,7 @@ def format_training_data(games: List[Game]) -> List[List[
                                      (p2_pre.position.x, p2_pre.position.y),
                                      p1_post.stocks, p2_post.stocks,
                                      p1_post.damage, p2_post.damage)
-                p1_action = SSBMAction()
+                p1_action = create_action_from_button(p1_pre.buttons.logical)
                 p1_frame_tuple = (p1_obs, p1_action)
                 s1.append(p1_frame_tuple)
 
@@ -81,7 +102,7 @@ def format_training_data(games: List[Game]) -> List[List[
                                      (p1_pre.position.x, p1_pre.position.y),
                                      p2_post.stocks, p1_post.stocks,
                                      p2_post.damage, p1_post.damage)
-                p2_action = SSBMAction()
+                p2_action = create_action_from_button(p2_pre.buttons.logical)
                 p2_frame_tuple = (p2_obs, p2_action)
                 s2.append(p2_frame_tuple)
 

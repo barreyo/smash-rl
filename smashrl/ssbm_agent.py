@@ -3,7 +3,7 @@
 import numpy as np
 
 from algorithms.dqn.dqn import DQN
-from algorithms.e_greedy.e_egreedy import EGreedy
+from algorithms.e_greedy.e_greedy import EGreedy
 from framework.agent import Agent
 from framework.games.ssbm.ssbm_action import SSBMAction
 from framework.games.ssbm.ssbm_action_space import SSBMActionSpace
@@ -15,7 +15,13 @@ class SSBMAgent(Agent):
 
     def __init__(self):
         super().__init__(SSBMActionSpace())
-        self.q = DQN()
+        self.q = DQN(
+            observation_size=SSBMObservation.size(),
+            action_size=self.action_space.n_actions(),
+            learning_rate=0.001,
+            gamma=0.1,
+            batch_size=1
+        )
         self.e_greedy = EGreedy()
 
     def act(self, observation: SSBMObservation, timestep: int) -> SSBMAction:

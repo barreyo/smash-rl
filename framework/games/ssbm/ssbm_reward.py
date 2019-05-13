@@ -1,5 +1,9 @@
 """Cost/reward function implementations."""
 
+from typing import List
+
+from framework.observation import Observation
+
 from framework.reward import Reward
 
 
@@ -11,40 +15,20 @@ class SimpleSSBMReward(Reward):
     STOCK_INFLICT_COST = 100.0
     TIMESTEP_COST = -0.05
 
-    # TODO: Read in data from observations. Update this class to implement
-    #       "cost" fn from the parent class.
-    def __init__(self):
-        self.prev_player_life = 0
-        self.prev_enemy_life = 0
-        self.prev_player_stock = self.starting_stock
-        self.prev_enemy_stock = self.starting_stock
 
-    def get_cost(self, player_life: float, player_stock: int,
-                 enemy_life: float, enemy_stock: int, timestep: int) -> float:
-        cost = timestep * self.TIMESTEP_COST
+    def cost(self, current_observation: Observation, historical_observations: List[Observation], step: int) -> float:
+        previous_observation = historical_observations[-1]
+        cost = step * self.TIMESTEP_COST
 
-        if (self.prev_player_stock - player_stock) > 0:
-            cost += (self.prev_player_stock - player_stock) * \
-                self.STOCK_LOSS_COST
-        else:
-            cost += (self.prev_player_life - player_life) * self.LIFE_LOSS_COST
+        player_stock_diff = previous_observation.player_stocks - current_observation.player_stocks
+        enemy_stock_diff = previous_observation.enemy_stocks - current_observation.enemy_stocks
+        player_life_diff = current_observation.player_percent - previous_observation.player_percent
+        enemy_life_diff = current_observation.enemy_percent - previous_observation.enemy_percent
 
-        if (self.prev_enemy_stock - enemy_stock) > 0:
-            cost += (self.prev_enemy_stock - enemy_stock) * \
-                self.STOCK_INFLICT_COST
-        else:
-            cost += (self.prev_enemy_life - enemy_life) * \
-                self.LIFE_INFLICT_COST
+        cost += player_stock_diff * self.STOCK_LOSS_COST
+        cost += player_life_diff * self.LIFE_LOSS_COST
 
-        self.prev_player_life = player_life
-        self.prev_player_stock = player_stock
-        self.prev_enemy_life = enemy_life
-        self.prev_enemy_stock = enemy_stock
+        cost += enemy_stock_diff * self.STOCK_INFLICT_COST
+        cost += enemy_life_diff * self.LIFE_INFLICT_COST
 
         return cost
-
-    def reset(self) -> None:
-        self.prev_player_life = 0
-        self.prev_enemy_life = 0
-        self.prev_player_stock = 3
-        self.prev_enemy_stock = 3
