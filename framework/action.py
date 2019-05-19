@@ -1,6 +1,8 @@
 
 class Action():
-    pass
+
+    def as_array(self):
+        raise NotImplementedError("Implement as_array for your action")
 
 
 class DiscreteAction(Action):

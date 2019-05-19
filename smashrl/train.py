@@ -11,14 +11,11 @@ from framework.games.ssbm.ssbm_reward import SimpleSSBMReward
 from smashrl.ssbm_agent import SSBMAgent
 from smashrl.dataset import format_training_data
 
-# from smashrl.action import ControllerState
-# from smashrl.observation import Observation
-# from smashrl.reward_function import SimpleSSMMRewardState
 
 log = logging.getLogger(__name__)
 
 
-def run_offline_training_sequence(agent, reward, games):
+def run_offline_training_sequence(agent, reward_calculator, games):
     """
     Run a training sequence of a set of games.
 
@@ -43,7 +40,7 @@ def run_offline_training_sequence(agent, reward, games):
         log.info(f"Starting game: {game_idx}/{len(games)}")
         for ts, (new_obs, next_action) in enumerate(game[1:]):
 
-            reward = reward.cost(new_obs, observations, ts)
+            reward = reward_calculator.cost(new_obs, observations, ts)
             rewards.append(reward)
             done = float(ts == (len(game) - 1))
 

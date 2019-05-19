@@ -6,7 +6,10 @@ import numpy as np
 
 from framework.observation import Observation
 
-Position = namedtuple('Position', ['x', 'y'])
+class Position():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
 
 class SSBMObservation(Observation):
@@ -16,7 +19,7 @@ class SSBMObservation(Observation):
     def size():
         return len(SSBMObservation().as_array())
 
-    def __init__(self, player_pos: Position = (0,0), enemy_pos: Position = (0,0),
+    def __init__(self, player_pos: Position = Position(x=0, y=0), enemy_pos: Position = Position(x=0, y=0),
                  player_stocks: int = 0, enemy_stocks: int = 0, player_percent: float = 0.0,
                  enemy_percent: float = 0.0):
         """

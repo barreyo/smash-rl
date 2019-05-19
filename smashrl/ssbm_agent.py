@@ -17,7 +17,7 @@ class SSBMAgent(Agent):
         super().__init__(SSBMActionSpace())
         self.q = DQN(
             observation_size=SSBMObservation.size(),
-            action_size=self.action_space.n_actions(),
+            action_size=self.action_space.n_actions,
             learning_rate=0.001,
             gamma=0.1,
             batch_size=1
@@ -31,11 +31,20 @@ class SSBMAgent(Agent):
         action = self.q.predict(observation.get_np())
         return self.action_space.action_to_index(action)
 
+    # TODO: Update learn to take in lists of everything for proper batching
     def learn(self, observation: SSBMObservation,
               observation_next: SSBMObservation, action: SSBMAction,
               reward: float, done: float):
-        return self.q.train([observation], [observation_next], [action],
-                            [reward], [done])
+
+        batched_observations = [observation]
+        batched_observations_next = [observation_next]
+        batched_actions = [action]
+
+        observations = [o.as_array() for o in batched_observations]
+        observations_next = [o.as_array() for o in batched_observations_next]
+        actions = [a.as_array() for a in batched_actions]
+
+        return self.q.train(observations, observations_next, actions, [reward], [done])
 
     def load(self):
         raise NotImplementedError()

@@ -32,7 +32,7 @@ class DQN():
                                                        observation_size],
                                                 name="observations_next")
         self.actions = tf.placeholder(tf.float32,
-                                      shape=(self.batch_size,),
+                                      shape=(self.batch_size, self.action_size),
                                       name="actions")
         # AKA Q(a', s')
         self.rewards = tf.placeholder(tf.float32,
@@ -43,18 +43,19 @@ class DQN():
                                          name="done_flags")
 
         self.q_network = self._build_dense_network(self.observations,
-                                                   self.hidden_layers)
+                                                   self.hidden_layers,
+                                                   'DQN_Network')
 
         self.target_q_network = self._build_dense_network(
             self.observations_next, self.hidden_layers, 'target_DQN_Network')
 
-        action_one_hot = tf.one_hot(
-            self.actions, self.action_size, 1.0, 0.0, name='action_one_hot')
+        # action_one_hot = tf.one_hot(
+        #     self.actions, self.action_size, 1.0, 0.0, name='action_one_hot')
         prediction = tf.reduce_sum(
-            self.q_network * action_one_hot, reduction_indices=-1,
+            self.q_network * self.actions, reduction_indices=-1,
             name='q_acted')
 
-        max_q_prim = tf.reduce_max(self.q_target_network, axis=-1)
+        max_q_prim = tf.reduce_max(self.target_q_network, axis=-1)
         y = self.rewards + (1.0 - self.done_flags) * self.gamma * max_q_prim
 
         self.loss = tf.reduce_mean(
@@ -62,8 +63,10 @@ class DQN():
         self.optimizer = tf.train.RMSPropOptimizer(
             self.learning_rate).minimize(self.loss)
 
-    def _build_dense_network(self, inputs, hidden_layers,
-                             network_name='DQNetwork'):
+        init = tf.initializers.global_variables()
+        self.session.run(init)
+
+    def _build_dense_network(self, inputs, hidden_layers, network_name):
         initializer = tf.contrib.layers.xavier_initializer()
 
         with tf.variable_scope(network_name):
@@ -77,16 +80,17 @@ class DQN():
                 )
         output = tf.layers.dense(
             inputs, self.action_size, activation=None,
-            kernel_initializer=initializer, name="output")
+            kernel_initializer=initializer, name=f"{network_name}_output")
 
         return output
 
     def predict(self, observations: Observation) -> Action:
         pass
 
-    def train(self, observations: List[Observation],
-              observations_next: List[Observation], actions: List[Action],
-              rewards: List[Reward], done_flags: List[float]) -> float:
+    def train(self, observations: List[List[float]],
+              observations_next: List[List[float]], actions: List[List[float]],
+              rewards: List[float], done_flags: List[float]) -> float:
+
         feed_dict = {
             self.observations: observations,
             self.actions: actions,

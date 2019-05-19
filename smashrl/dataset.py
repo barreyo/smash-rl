@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 from framework.games.ssbm.ssbm_action import SSBMAction
-from framework.games.ssbm.ssbm_observation import SSBMObservation
+from framework.games.ssbm.ssbm_observation import SSBMObservation, Position
 from slippi import Game
 from slippi.id import InGameCharacter, Stage
 from slippi.event import Buttons
@@ -89,8 +89,8 @@ def format_training_data(games: List[Game]) -> List[List[
                 continue
 
             if is_valid_character(p1_post.character):
-                p1_obs = SSBMObservation((p1_pre.position.x, p1_pre.position.y),
-                                     (p2_pre.position.x, p2_pre.position.y),
+                p1_obs = SSBMObservation(Position(p1_pre.position.x, p1_pre.position.y),
+                                     Position(p2_pre.position.x, p2_pre.position.y),
                                      p1_post.stocks, p2_post.stocks,
                                      p1_post.damage, p2_post.damage)
                 p1_action = create_action_from_button(p1_pre.buttons.logical)
@@ -98,8 +98,8 @@ def format_training_data(games: List[Game]) -> List[List[
                 s1.append(p1_frame_tuple)
 
             if is_valid_character(p2_post.character):
-                p2_obs = SSBMObservation((p2_pre.position.x, p2_pre.position.y),
-                                     (p1_pre.position.x, p1_pre.position.y),
+                p2_obs = SSBMObservation(Position(p2_pre.position.x, p2_pre.position.y),
+                                     Position(p1_pre.position.x, p1_pre.position.y),
                                      p2_post.stocks, p1_post.stocks,
                                      p2_post.damage, p1_post.damage)
                 p2_action = create_action_from_button(p2_pre.buttons.logical)
@@ -122,15 +122,18 @@ def read_game(path: str) -> Game:
         return None
     try:
         log.debug(f"Reading in game: {path}")
-        return Game(path)
+        game = Game(path)
+        return game if is_valid_stage(game.start.stage) else None
     except ValueError:
         pass
 
 
-def read_games(folder: str) -> List[Game]:
+def read_games(folder: str, max_games: int) -> List[Game]:
     p = Pool(8)
     files = [os.path.join(folder, x)
              for x in os.listdir(folder) if x.endswith('.slp')]
+    if max_games != -1:
+        files = files[0:max_games]
     games = p.map(read_game, files)
     p.terminate()
     p.join()
@@ -142,21 +145,22 @@ def read_games(folder: str) -> List[Game]:
 
 
 def dump_to_disk(output: str, games: List[Game]):
-    log.info(f"Collecting training data from: {len(games)} games...")
-    data = format_training_data(games)
-    log.info(f"Found: {len(data)} valid games...")
-    log.info(f"Writing training data to: {output}")
-
+    # log.info(f"Collecting training data from: {len(games)} games...")
+    # data = format_training_data(games)
+    # log.info(f"Found: {len(data)} valid games...")
+    # log.info(f"Writing training data to: {output}")
+    log.info(f"Found {len(games)} valid games")
     Path(os.path.dirname(output)).mkdir(parents=True, exist_ok=True)
     with open(output, 'wb') as f:
-        pickle.dump(data, f)
+        pickle.dump(games, f)
 
 
 def _main():
     game_folder = sys.argv[1]
     output = sys.argv[2]
+    max_games = int(sys.argv[3]) if len(sys.argv) == 4 else -1
 
-    games = read_games(game_folder)
+    games = read_games(game_folder, max_games)
     dump_to_disk(output, games)
 
 

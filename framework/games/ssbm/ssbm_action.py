@@ -177,7 +177,18 @@ VALID_ACTIONS = [
     np.array([0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0]),
     np.array([0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0]),
     np.array([0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]),
-    np.array([0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0])
+    np.array([0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0]),
+    np.array([0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0]),
+    np.array([0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0]),
+    np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0]),
+    np.array([1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0]),
+    np.array([1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]),
+    np.array([0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0]),
+    np.array([0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0]),
+    np.array([1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1]),
+    np.array([0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0]),
+    np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0]),
+    # np.array([]),
 ]
 N_ACTIONS = len(VALID_ACTIONS)
 STATE_TO_INDEX_LOOKUP = {tuple(vl): idx
@@ -208,11 +219,13 @@ class SSBMAction(Action):
     def __clamp_state(self):
         self.state = [1 if v > 0 else 0 for v in self.state]
 
-    def get_np_array(self) -> np.array:
+    def as_array(self) -> np.array:
         """Return the controller state as 1-dimensional(1,) numpy array."""
-        return self.state
+        array = np.zeros(N_ACTIONS)
+        array[self.as_index()] = 1
+        return array
 
-    def get_index(self) -> int:
+    def as_index(self) -> int:
         """Return the Action index of this controller state."""
         return reverse_action_lookup(self.state)
 
