@@ -5,7 +5,6 @@ import tensorflow as tf
 
 from framework.action import Action
 from framework.observation import Observation
-from framework.reward import Reward
 
 
 class DQN():
@@ -65,6 +64,7 @@ class DQN():
 
         init = tf.initializers.global_variables()
         self.session.run(init)
+        self.saver = tf.train.Saver()
 
     def _build_dense_network(self, inputs, hidden_layers, network_name):
         initializer = tf.contrib.layers.xavier_initializer()
@@ -103,3 +103,9 @@ class DQN():
              self.target_q_network, self.loss],
             feed_dict=feed_dict)
         return loss
+
+    def save(self, path: str):
+        return self.saver.save(self.session, path)
+
+    def load(self, path: str):
+        self.saver.restore(self.session, path)

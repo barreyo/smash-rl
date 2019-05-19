@@ -7,6 +7,7 @@ src/
 .vscode/
 data/
 *.pkl
+trained_dqn/
 
 ###
 # --- OS X ---

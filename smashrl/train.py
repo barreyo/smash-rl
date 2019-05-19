@@ -60,6 +60,8 @@ def run_offline_training_sequence(agent: Agent, reward_calculator: Reward,
         log.info(f"Total TS: {len(game)}")
         log.info("=====================")
 
+        agent.save()
+
 
 def _main():
     with open(sys.argv[1], 'rb') as f:

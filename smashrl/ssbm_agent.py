@@ -1,11 +1,16 @@
 """The actual RL Agent"""
 
+import logging
+from pathlib import Path
+
 from algorithms.dqn.dqn import DQN
 from algorithms.e_greedy.e_greedy import EGreedy
 from framework.agent import Agent
 from framework.games.ssbm.ssbm_action import SSBMAction
 from framework.games.ssbm.ssbm_action_space import SSBMActionSpace
 from framework.games.ssbm.ssbm_observation import SSBMObservation
+
+log = logging.getLogger(__name__)
 
 
 class SSBMAgent(Agent):
@@ -44,8 +49,12 @@ class SSBMAgent(Agent):
 
         return self.q.train(observations, observations_next, actions, [reward], [done])
 
-    def load(self):
-        raise NotImplementedError()
+    def load(self, path='./trained_dqn/dqn.ckpt'):
+        if not Path(path).exists():
+            log.info(f'No pre-trained agent found in {path}... Running new model')
+            return
 
-    def save(self):
-        raise NotImplementedError()
+        self.q.load()
+
+    def save(self, path='./trained_dqn/dqn.ckpt'):
+        return self.q.save(path)
