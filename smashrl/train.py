@@ -3,19 +3,22 @@
 import logging
 import pickle
 import sys
-from typing import List, Tuple
+from typing import List
+
 import numpy as np
 
+from framework.agent import Agent
 from framework.games.ssbm.ssbm_reward import SimpleSSBMReward
-
-from smashrl.ssbm_agent import SSBMAgent
+from framework.reward import Reward
+from slippi import Game
 from smashrl.dataset import format_training_data
-
+from smashrl.ssbm_agent import SSBMAgent
 
 log = logging.getLogger(__name__)
 
 
-def run_offline_training_sequence(agent, reward_calculator, games):
+def run_offline_training_sequence(agent: Agent, reward_calculator: Reward,
+                                  games: List[Game]) -> None:
     """
     Run a training sequence of a set of games.
 
@@ -56,7 +59,6 @@ def run_offline_training_sequence(agent, reward_calculator, games):
         log.info(f"Average reward: {np.average(rewards)}")
         log.info(f"Total TS: {len(game)}")
         log.info("=====================")
-
 
 
 def _main():

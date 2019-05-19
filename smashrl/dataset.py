@@ -10,8 +10,8 @@ from typing import List, Tuple
 from framework.games.ssbm.ssbm_action import SSBMAction
 from framework.games.ssbm.ssbm_observation import SSBMObservation, Position
 from slippi import Game
-from slippi.id import InGameCharacter, Stage
 from slippi.event import Buttons
+from slippi.id import InGameCharacter, Stage
 
 VALID_CHARACTERS = {InGameCharacter.FOX}
 VALID_STAGES = {Stage.BATTLEFIELD, Stage.FINAL_DESTINATION}
@@ -28,6 +28,7 @@ def is_valid_stage(stage: Stage) -> bool:  # noqa
 def is_valid_character(char: InGameCharacter) -> bool:  # noqa
     return char in VALID_CHARACTERS
 
+
 def create_action_from_button(logical):
     return SSBMAction(
         trigger=logical & Buttons.Logical.TRIGGER_ANALOG,
@@ -43,7 +44,7 @@ def create_action_from_button(logical):
         x=logical & Buttons.Logical.X,
         b=logical & Buttons.Logical.B,
         a=logical & Buttons.Logical.A,
-        l=logical & Buttons.Logical.L,
+        l=logical & Buttons.Logical.L,  # noqa
         r=logical & Buttons.Logical.R,
         z=logical & Buttons.Logical.Z
     )

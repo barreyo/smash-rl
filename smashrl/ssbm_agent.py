@@ -1,7 +1,5 @@
 """The actual RL Agent"""
 
-import numpy as np
-
 from algorithms.dqn.dqn import DQN
 from algorithms.e_greedy.e_greedy import EGreedy
 from framework.agent import Agent
