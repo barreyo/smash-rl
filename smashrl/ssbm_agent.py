@@ -3,6 +3,8 @@
 import logging
 from pathlib import Path
 
+import numpy as np
+
 from algorithms.dqn.dqn import DQN
 from algorithms.e_greedy.e_greedy import EGreedy
 from framework.agent import Agent
@@ -31,8 +33,9 @@ class SSBMAgent(Agent):
         if self.e_greedy.predict(timestep):
             return self.action_space.random_action()
 
-        action = self.q.predict(observation.get_np())
-        return self.action_space.action_to_index(action)
+        actions = self.q.predict(observation.as_array())
+        best_action = np.argmax(actions)
+        return SSBMAction.from_index(best_action)
 
     # TODO: Update learn to take in lists of everything for proper batching
     def learn(self, observation: SSBMObservation,

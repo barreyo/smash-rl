@@ -1,12 +1,9 @@
-import enum
-import os
-import posix
-import subprocess
-import logging
+
 import functools
+import logging
 import time
 
-from slippi.event import Buttons # TODO: Move in to "dolphin"?
+from slippi.event import Buttons  # TODO: Move in to "dolphin"?
 
 
 def bits(n):

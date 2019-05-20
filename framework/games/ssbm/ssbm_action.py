@@ -1,5 +1,6 @@
 """Classes denoting different actions."""
 
+import inspect
 from typing import Union
 
 import numpy as np
@@ -194,7 +195,6 @@ N_ACTIONS = len(VALID_ACTIONS)
 STATE_TO_INDEX_LOOKUP = {tuple(vl): idx
                          for idx, vl in enumerate(VALID_ACTIONS)}
 
-
 class SSBMAction(Action):
     """Denoting an action taken in a single frame."""
 
@@ -210,6 +210,9 @@ class SSBMAction(Action):
         Each entry is either 0 or 1 denoting if the button or logical input is
         active. Defaults to all zeros, aka 'idle'.
         """
+        frame = inspect.currentframe()
+        args, _, _, _ = inspect.getargvalues(frame)
+        self.named_state = args[1:]
         self.state = np.array([trigger, cstick_right, cstick_left, cstick_down,
                                cstick_up, joystick_right, joystick_left,
                                joystick_down, joystick_up, y, x, b, a, l,
@@ -218,6 +221,10 @@ class SSBMAction(Action):
 
     def __clamp_state(self):
         self.state = [1 if v > 0 else 0 for v in self.state]
+
+    @classmethod
+    def from_index(cls, index: int):
+        return cls(*VALID_ACTIONS[index])
 
     def as_array(self) -> np.array:
         """Return the controller state as 1-dimensional(1,) numpy array."""
@@ -234,7 +241,11 @@ class SSBMAction(Action):
         pass
 
     def __str__(self):  # noqa
-        return 'ControllerState(' + str(self.state) + ')'
+        tupled_actions = zip(self.named_state, self.state)
+        active = [a for a, b in tupled_actions if b != 0]
+        if not active:
+            return 'Idle'
+        return 'Pressing: ' + ', '.join(active)
 
 
 def reverse_action_lookup(controller_state: Union[np.array, SSBMAction]) -> int:  # noqa

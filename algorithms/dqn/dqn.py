@@ -1,10 +1,7 @@
 
-from typing import List
+from typing import Any, List
 
 import tensorflow as tf
-
-from framework.action import Action
-from framework.observation import Observation
 
 
 class DQN():
@@ -50,7 +47,7 @@ class DQN():
 
         # action_one_hot = tf.one_hot(
         #     self.actions, self.action_size, 1.0, 0.0, name='action_one_hot')
-        prediction = tf.reduce_sum(
+        self.prediction = tf.reduce_sum(
             self.q_network * self.actions, reduction_indices=-1,
             name='q_acted')
 
@@ -58,7 +55,7 @@ class DQN():
         y = self.rewards + (1.0 - self.done_flags) * self.gamma * max_q_prim
 
         self.loss = tf.reduce_mean(
-            tf.square(prediction - tf.stop_gradient(y)), name='loss_mse_train')
+            tf.square(self.prediction - tf.stop_gradient(y)), name='loss_mse_train')
         self.optimizer = tf.train.RMSPropOptimizer(
             self.learning_rate).minimize(self.loss)
 
@@ -84,8 +81,8 @@ class DQN():
 
         return output
 
-    def predict(self, observations: Observation) -> Action:
-        pass
+    def predict(self, observation: List[float]) -> List[Any]:
+        return self.prediction.eval({self.observations: [observation]})
 
     def train(self, observations: List[List[float]],
               observations_next: List[List[float]], actions: List[List[float]],

@@ -34,13 +34,15 @@ def run_offline_training_sequence(agent: Agent, reward_calculator: Reward,
     log.info('Starting training sequence')
     log.info('Formatting data')
 
-    for game_idx, game in enumerate(format_training_data(games)):
+    formatted_games = format_training_data(games)
+
+    for game_idx, game in enumerate(formatted_games):
         obs, action = game[0]
         observations = [obs]
         losses = []
         rewards = []
 
-        log.info(f"Starting game: {game_idx}/{len(games)}")
+        log.info(f"Starting game: {game_idx + 1}/{len(formatted_games)}")
         for ts, (new_obs, next_action) in enumerate(game[1:]):
 
             reward = reward_calculator.cost(new_obs, observations, ts)
@@ -49,8 +51,11 @@ def run_offline_training_sequence(agent: Agent, reward_calculator: Reward,
 
             loss = agent.learn(obs, new_obs, action, reward, done)
             losses.append(loss)
-            if ts % 100 == 0:
-                log.info(f"TS: {ts}, Loss: {loss}")
+
+            print(action)
+
+            if ts % 1000 == 0:
+                log.info(f"TS: {ts}, Loss: {loss}, Avg Reward: {np.average(rewards)}")
 
             obs, action = new_obs, next_action
 

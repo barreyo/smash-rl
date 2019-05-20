@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 from framework.games.ssbm.ssbm_action import SSBMAction
-from framework.games.ssbm.ssbm_observation import SSBMObservation, Position
+from framework.games.ssbm.ssbm_observation import Position, SSBMObservation
 from slippi import Game
 from slippi.event import Buttons
 from slippi.id import InGameCharacter, Stage
@@ -114,6 +114,10 @@ def format_training_data(games: List[Game]) -> List[List[
         if s2:
             log.info('Adding game session for P2')
             training_data.append(s2)
+
+        if s1 or s2:
+            winner = 'p1' if frame.ports[0].leader.post.stocks > 0 else 'p2'
+            log.info(f'Winner: {winner}')
 
     return training_data
 
