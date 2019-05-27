@@ -1,6 +1,8 @@
 
+import configparser
 import os
 import pkgutil
+import socket
 from pathlib import Path
 from typing import Text
 
@@ -17,10 +19,24 @@ class Dolphin(Device):
         self.fifo_path = self.__create_fifo_pipe('pipe')
         self.pad = DolphinPad(self.fifo_path)
 
+        # Make sure all config files exist and have correct content
         self.__create_controller_config()
+        self.__create_dolphin_config()
+
+    def __create_memory_watcher(self):
+        # Create config and socket dir
+        watcher_dir = self.dolphin_path / 'MemoryWatcher'
+        watcher_dir.mkdir(exist_ok=True)
+        watcher_path = watcher_dir / 'MemoryWatcher'
+
+        # Bind the socket
+        self.mem_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        self.mem_socket.bind(str(watcher_path))
 
     def __create_dolphin_config(self):
-        pass
+        dolphin_config_path = self.dolphin_path / 'Config' / 'Dolphin.ini'
+        config = configparser.SafeConfigParser()
+        config.read(dolphin_config_path)
 
     def __create_fifo_pipe(self, fifo_name: Text) -> Text:
         pipes_dir = self.dolphin_path / 'Pipes'
@@ -36,8 +52,6 @@ class Dolphin(Device):
             Path(fifo_path).unlink()
             os.mkfifo(fifo_path)
 
-        # Try opening the pipe to make sure everything is nice and dandy
-        self.fifo_pipe = open(fifo_path)
         return fifo_path
 
     def __create_controller_config(
@@ -47,8 +61,12 @@ class Dolphin(Device):
         if default_config is None:
             raise IOError('Default config file missing in project')
         config_text = default_config.decode()
-        output_dir = (self.dolphin_path / 'Config' / 'Profiles' /
-                      pad_name / config_file_name)
+
+        pad_dir = self.dolphin_path / 'Config' / 'Profiles' / pad_name
+        if not pad_dir.is_dir():
+            pad_dir.mkdir(parents=True)
+
+        output_dir = pad_dir / config_file_name
         output_dir.write_text(config_text)
 
     def __get_dolphin_home_path(self) -> Path:
@@ -86,3 +104,6 @@ class Dolphin(Device):
             return
 
         self.is_open = False
+
+    def __del__(self):
+        self.mem_socket.close()
