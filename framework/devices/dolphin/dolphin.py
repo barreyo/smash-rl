@@ -2,6 +2,7 @@
 import configparser
 import os
 import pkgutil
+import shutil
 import socket
 from pathlib import Path
 from typing import Text
@@ -13,21 +14,27 @@ from framework.devices.dolphin.exceptions import DolphinNotFoundError
 
 class Dolphin(Device):
 
-    def __init__(self):
+    def __init__(self, memory_mapping: Path):
         super().__init__('dolphin')
         self.dolphin_path = self.__get_dolphin_home_path()
         self.fifo_path = self.__create_fifo_pipe('pipe')
         self.pad = DolphinPad(self.fifo_path)
+        self.memory_mapping_file = memory_mapping
 
         # Make sure all config files exist and have correct content
         self.__create_controller_config()
         self.__create_dolphin_config()
+        self.__create_memory_watcher()
 
     def __create_memory_watcher(self):
         # Create config and socket dir
         watcher_dir = self.dolphin_path / 'MemoryWatcher'
         watcher_dir.mkdir(exist_ok=True)
         watcher_path = watcher_dir / 'MemoryWatcher'
+
+        # Create memory locations file
+        mem_file = watcher_dir / 'Locations.txt'
+        shutil.copy(str(self.memory_mapping_file), str(mem_file))
 
         # Bind the socket
         self.mem_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
@@ -37,6 +44,10 @@ class Dolphin(Device):
         dolphin_config_path = self.dolphin_path / 'Config' / 'Dolphin.ini'
         config = configparser.SafeConfigParser()
         config.read(dolphin_config_path)
+
+        # config.set('Core', 'SIDevice', )
+        config.set('Core', 'enablecheats', 'True')
+        config.set('Input', 'backgroundinput', 'True')
 
     def __create_fifo_pipe(self, fifo_name: Text) -> Text:
         pipes_dir = self.dolphin_path / 'Pipes'
