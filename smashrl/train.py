@@ -55,7 +55,8 @@ def run_offline_training_sequence(agent: Agent, reward_calculator: Reward,
             print(action)
 
             if ts % 1000 == 0:
-                log.info(f"TS: {ts}, Loss: {loss}, Avg Reward: {np.average(rewards)}")
+                log.info(f"TS: {ts}, Loss: {loss}, "
+                         f"Avg Reward: {np.average(rewards)}")
 
             obs, action = new_obs, next_action
 

@@ -54,7 +54,8 @@ class SSBMAgent(Agent):
 
     def load(self, path='./trained_dqn/dqn.ckpt'):
         if not Path(path).exists():
-            log.info(f'No pre-trained agent found in {path}... Running new model')
+            log.info(
+                f'No pre-trained agent found in {path}... Running new model')
             return
 
         self.q.load()

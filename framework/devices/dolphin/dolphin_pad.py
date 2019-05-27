@@ -12,6 +12,7 @@ def bits(n):
         yield b
         n ^= b
 
+
 class DolphinPad:
     """
     Control dolphin emulator through pipes.
