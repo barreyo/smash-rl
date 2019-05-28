@@ -2,8 +2,8 @@
 
 from slippi import Game
 from slippi.event import Buttons
-from smashrl.action import ControllerState
-from smashrl.observation import Observation
+from framework.games.ssbm.ssbm_action import SSBMAction
+from framework.games.ssbm.ssbm_observation import SSBMObservation
 
 
 def bitfield(n):
@@ -34,10 +34,10 @@ def _main():
             except AttributeError:
                 continue
 
-            frame_obs = Observation((p1_pre.position.x, p1_pre.position.y),
-                                    (p2_pre.position.x, p2_pre.position.y),
-                                    p1_post.stocks, p2_post.stocks,
-                                    p1_post.damage, p2_post.damage)
+            frame_obs = SSBMObservation((p1_pre.position.x, p1_pre.position.y),
+                                        (p2_pre.position.x, p2_pre.position.y),
+                                        p1_post.stocks, p2_post.stocks,
+                                        p1_post.damage, p2_post.damage)
             states.append(frame_obs)
 
             button_set.add(p1_pre.buttons.logical)
@@ -49,7 +49,7 @@ def _main():
     # print(len(button_set))
 
     for b in button_set:
-        res = ControllerState()
+        res = SSBMAction()
         if b & Buttons.Logical.TRIGGER_ANALOG:
             res.state[0] = 1
         if b & Buttons.Logical.CSTICK_RIGHT:

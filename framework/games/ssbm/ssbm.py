@@ -26,7 +26,6 @@ ADDRESS_TO_PROPERTY = {
 }
 
 
-
 # TODO: Add all SSBM sub classes, use this as a configuration object for the
 #       agent
 class SSBMGame(Game):
@@ -44,7 +43,7 @@ class SSBMGame(Game):
 
     def update_agents(self, observation, frame):
         new_time = time.time()
-        if new_time - self.timestamp > 0.05: # 50ms
+        if new_time - self.timestamp > 0.05:  # 50ms
             self.timestamp = new_time
             for agent in self.agents:
                 action = agent.act(observation, self.frame_counter)
@@ -56,7 +55,8 @@ class SSBMGame(Game):
             # TODO: Send action back
 
     def update_observation(self, address, buffer):
-        operator, bit_shift, transform_fn, property_name = ADDRESS_TO_PROPERTY[address]
+        operator, bit_shift, transform_fn, property_name = \
+            ADDRESS_TO_PROPERTY[address]
         value = unpack(operator, buffer)[0]
         if bit_shift > 0:
             value = value >> bit_shift

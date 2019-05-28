@@ -1,12 +1,10 @@
 
 import binascii
 import configparser
-import os
 import pkgutil
 import shutil
 import socket
 from pathlib import Path
-from struct import unpack
 from typing import Text
 
 from framework.devices.device import Device
@@ -41,7 +39,7 @@ class Dolphin(Device):
         # Bind the socket
         try:
             watcher_path.unlink()
-        except:
+        except IOError:
             pass
         self.mem_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.mem_socket.bind(str(watcher_path))
@@ -54,8 +52,6 @@ class Dolphin(Device):
         # config.set('Core', 'SIDevice', )
         config.set('Core', 'enablecheats', 'True')
         config.set('Input', 'backgroundinput', 'True')
-
-
 
     def __create_fifo_pipe(self, fifo_name: Text) -> Text:
         pipes_dir = self.dolphin_path / 'Pipes'
@@ -122,7 +118,8 @@ class Dolphin(Device):
 
     def read_state(self):
         try:
-            data = self.mem_socket.recvfrom(9096)[0].decode('utf-8').splitlines()
+            data = self.mem_socket.recvfrom(
+                9096)[0].decode('utf-8').splitlines()
         except socket.timeout:
             return None
         # Strip the null terminator, pad with zeros, then convert to bytes
@@ -138,4 +135,10 @@ class Dolphin(Device):
         self.is_open = False
 
     def __del__(self):
-        self.mem_socket.close()
+        try:
+            if self.mem_socket is not None:
+                self.mem_socket.close()
+        except AttributeError:
+            pass
+
+        self.mem_socket = None

@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 
-from framework.action import Action, ContinuousAction, DiscreteAction
+from framework.action import Action, DiscreteAction
 
 
 class ActionSpace():
@@ -18,16 +18,16 @@ class ActionSpace():
 
 class ContinuousActionSpace(ActionSpace):
 
-    def __init__(self, actions: List[ContinuousAction]):
+    def __init__(self, actions: List[Action]):
         super().__init__(actions)
 
 
 class DiscreteActionSpace(ActionSpace):
 
-    def __init__(self, actions: List[DiscreteAction]):
+    def __init__(self, actions: List[Action]):
         super().__init__(actions)
 
-    def action_to_index(self, index: int) -> DiscreteAction:
+    def action_to_index(self, index: int) -> Action:
         return self.actions[index]
 
     def random_action(self) -> DiscreteAction:

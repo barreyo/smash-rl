@@ -8,7 +8,7 @@ RESET 			:= $(shell tput sgr0)
 .PHONY: dep-update dep-install clean help
 
 dep-update:  ## Update all dependencies
-	@pip-compile requirements.in
+	@pip-compile requirements.in --upgrade
 
 dep-install:  ## Install all python dependencies into environment
 	@python3.6 -m pip install -r requirements.txt

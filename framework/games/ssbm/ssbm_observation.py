@@ -1,7 +1,5 @@
 """Observation of a single frame."""
 
-from collections import namedtuple
-
 import numpy as np
 
 from framework.observation import Observation
@@ -23,8 +21,12 @@ class SSBMObservation(Observation):
     def size():
         return len(SSBMObservation().as_array())
 
-    def __init__(self, player_pos: Position = Position(x=0, y=0), enemy_pos: Position = Position(x=0, y=0),
-                 player_stocks: int = 0, enemy_stocks: int = 0, player_percent: float = 0.0,
+    def __init__(self,
+                 player_pos: Position = Position(x=0, y=0),
+                 enemy_pos: Position = Position(x=0, y=0),
+                 player_stocks: int = 0,
+                 enemy_stocks: int = 0,
+                 player_percent: float = 0.0,
                  enemy_percent: float = 0.0):
         """
         State of a single frame(timestep).

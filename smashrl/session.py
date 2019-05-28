@@ -11,7 +11,9 @@ class Session():
     def __init__(self):
         self.agent = SSBMAgent(inference_only=True)
         self.agent.load()
-        self.device = Dolphin(Path("/Users/kostas/Projects/smash-rl/framework/devices/dolphin/config/Locations.txt"))
+        self.device = Dolphin(Path(
+            "/Users/kostas/Projects/smash-rl/framework/devices/"
+            "dolphin/config/Locations.txt"))
         self.game = SSBMGame(self.device, [self.agent])
 
     def start_game(self):

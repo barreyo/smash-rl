@@ -39,7 +39,8 @@ class DolphinPad:
             Buttons.Logical.JOYSTICK_UP: [0, 1],
         }
     }
-    ALL_CONTINUOUS_BUTTONS = functools.reduce(lambda x,y: x + list(y.keys()), list(CONTINUOUS_BUTTONS.values()), [])
+    ALL_CONTINUOUS_BUTTONS = functools.reduce(
+        lambda x, y: x + list(y.keys()), list(CONTINUOUS_BUTTONS.values()), [])
 
     def __init__(self, path):
         self.path = path
@@ -63,9 +64,9 @@ class DolphinPad:
         return button.name
 
     def set_button_state(self, button_state: Buttons.Logical):
-        diff = self.prev ^ button_state # prev XOR new
-        press = diff & button_state # Send press for: diff AND new
-        release = diff & self.prev # Send release for: diff AND pref
+        diff = self.prev ^ button_state  # prev XOR new
+        press = diff & button_state  # Send press for: diff AND new
+        release = diff & self.prev  # Send release for: diff AND pref
         # keep = self.prev & button_state # Keep pressing: prev AND new
         self.prev = press
 
@@ -84,7 +85,7 @@ class DolphinPad:
             self.release_button(button)
 
     def press_release_button(self, button):
-        """Press and release a button. This is only for testing, don't use"""
+        """Press and release a button. This is only for testing, don't use."""
         assert button in Buttons.Logical
         self.press_button(button)
         time.sleep(0.1)
@@ -94,21 +95,26 @@ class DolphinPad:
         """Press a button."""
         assert button in Buttons.Logical
 
-        # Button pressed is a continuous button, but we will just set the max value
+        # Button pressed is a continuous button, but we will just
+        # set the max value
         if button in self.ALL_CONTINUOUS_BUTTONS:
             if button in self.CONTINUOUS_BUTTONS['C'].keys():
-                self._send_to_pipe('SET {} {:.2f} {:.2f}'.format('C', *self.CONTINUOUS_BUTTONS['C'][button]))
+                self._send_to_pipe('SET {} {:.2f} {:.2f}'.format(
+                    'C', *self.CONTINUOUS_BUTTONS['C'][button]))
             elif button in self.CONTINUOUS_BUTTONS['MAIN'].keys():
-                self._send_to_pipe('SET {} {:.2f} {:.2f}'.format('MAIN', *self.CONTINUOUS_BUTTONS['MAIN'][button]))
+                self._send_to_pipe('SET {} {:.2f} {:.2f}'.format(
+                    'MAIN', *self.CONTINUOUS_BUTTONS['MAIN'][button]))
             else:
                 raise Exception('Unidentified button sent')
         else:
-            self._send_to_pipe('PRESS {}'.format(self._get_button_name(button)))
+            self._send_to_pipe('PRESS {}'.format(
+                self._get_button_name(button)))
 
     def release_button(self, button):
         """Release a button."""
         assert button in Buttons.Logical
         if button in self.ALL_CONTINUOUS_BUTTONS:
-            pass # TODO: Fix
+            pass  # TODO: Fix
         else:
-            self._send_to_pipe('RELEASE {}'.format(self._get_button_name(button)))
+            self._send_to_pipe('RELEASE {}'.format(
+                self._get_button_name(button)))

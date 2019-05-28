@@ -196,32 +196,6 @@ N_ACTIONS = len(VALID_ACTIONS)
 STATE_TO_INDEX_LOOKUP = {tuple(vl): idx
                          for idx, vl in enumerate(VALID_ACTIONS)}
 
-
-# TRIGGER_ANALOG = 2**31
-# CSTICK_RIGHT = 2**23
-# CSTICK_LEFT = 2**22
-# CSTICK_DOWN = 2**21
-# CSTICK_UP = 2**20
-# JOYSTICK_RIGHT = 2**19
-# JOYSTICK_LEFT = 2**18
-# JOYSTICK_DOWN = 2**17
-# JOYSTICK_UP = 2**16
-# START = 2**12
-# Y = 2**11
-# X = 2**10
-# B = 2**9
-# A = 2**8
-# L = 2**6
-# R = 2**5
-# Z = 2**4
-# DPAD_UP = 2**3
-# DPAD_DOWN = 2**2
-# DPAD_RIGHT = 2**1
-# DPAD_LEFT = 2**0
-# NONE = 0
-
-
-
 STATE_TO_SLIPPI = [
     Buttons.Logical.TRIGGER_ANALOG,
     Buttons.Logical.CSTICK_RIGHT,
@@ -291,8 +265,6 @@ class SSBMAction(Action):
                 res |= mask
 
         return res
-
-
 
     def __str__(self):  # noqa
         tupled_actions = zip(self.named_state, self.state)

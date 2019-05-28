@@ -17,8 +17,10 @@ from smashrl.ssbm_agent import SSBMAgent
 log = logging.getLogger(__name__)
 
 
-def run_offline_training_sequence(agent: Agent, reward_calculator: Reward,
-                                  games: List[Game]) -> None:
+def run_offline_training_sequence(
+        agent: Agent,
+        reward_calculator: Reward,
+        games: List[Game]) -> None:
     """
     Run a training sequence of a set of games.
 
@@ -81,7 +83,7 @@ def _main():
     reward = SimpleSSBMReward()
     run_offline_training_sequence(agent, reward, dataset)
 
-    # agent.save()
+    agent.save()
 
 
 if __name__ == "__main__":

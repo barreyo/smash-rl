@@ -28,7 +28,8 @@ class DQN():
                                                        observation_size],
                                                 name="observations_next")
         self.actions = tf.placeholder(tf.float32,
-                                      shape=(self.batch_size, self.action_size),
+                                      shape=(self.batch_size,
+                                             self.action_size),
                                       name="actions")
         # AKA Q(a', s')
         self.rewards = tf.placeholder(tf.float32,
@@ -53,7 +54,8 @@ class DQN():
         y = self.rewards + (1.0 - self.done_flags) * self.gamma * max_q_prim
 
         self.loss = tf.reduce_mean(
-            tf.square(self.prediction - tf.stop_gradient(y)), name='loss_mse_train')
+            tf.square(self.prediction - tf.stop_gradient(y)),
+            name='loss_mse_train')
         self.optimizer = tf.train.RMSPropOptimizer(
             self.learning_rate).minimize(self.loss)
 
@@ -80,7 +82,8 @@ class DQN():
         return output
 
     def predict(self, observation: List[float]) -> List[Any]:
-        return self.q_network.eval({self.observations: [observation]}, session=self.session)
+        return self.q_network.eval({self.observations: [observation]},
+                                   session=self.session)
 
     def train(self, observations: List[List[float]],
               observations_next: List[List[float]], actions: List[List[float]],
