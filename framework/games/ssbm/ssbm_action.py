@@ -6,6 +6,7 @@ from typing import Union
 import numpy as np
 
 from framework.action import Action
+from slippi.event import Buttons
 
 N_LOGICAL_INPUTS = 16
 VALID_ACTIONS = [
@@ -195,6 +196,52 @@ N_ACTIONS = len(VALID_ACTIONS)
 STATE_TO_INDEX_LOOKUP = {tuple(vl): idx
                          for idx, vl in enumerate(VALID_ACTIONS)}
 
+
+# TRIGGER_ANALOG = 2**31
+# CSTICK_RIGHT = 2**23
+# CSTICK_LEFT = 2**22
+# CSTICK_DOWN = 2**21
+# CSTICK_UP = 2**20
+# JOYSTICK_RIGHT = 2**19
+# JOYSTICK_LEFT = 2**18
+# JOYSTICK_DOWN = 2**17
+# JOYSTICK_UP = 2**16
+# START = 2**12
+# Y = 2**11
+# X = 2**10
+# B = 2**9
+# A = 2**8
+# L = 2**6
+# R = 2**5
+# Z = 2**4
+# DPAD_UP = 2**3
+# DPAD_DOWN = 2**2
+# DPAD_RIGHT = 2**1
+# DPAD_LEFT = 2**0
+# NONE = 0
+
+
+
+STATE_TO_SLIPPI = [
+    Buttons.Logical.TRIGGER_ANALOG,
+    Buttons.Logical.CSTICK_RIGHT,
+    Buttons.Logical.CSTICK_LEFT,
+    Buttons.Logical.CSTICK_DOWN,
+    Buttons.Logical.CSTICK_UP,
+    Buttons.Logical.JOYSTICK_RIGHT,
+    Buttons.Logical.JOYSTICK_LEFT,
+    Buttons.Logical.JOYSTICK_DOWN,
+    Buttons.Logical.JOYSTICK_UP,
+    Buttons.Logical.Y,
+    Buttons.Logical.X,
+    Buttons.Logical.B,
+    Buttons.Logical.A,
+    Buttons.Logical.L,
+    Buttons.Logical.R,
+    Buttons.Logical.Z,
+]
+
+
 class SSBMAction(Action):
     """Denoting an action taken in a single frame."""
 
@@ -236,9 +283,16 @@ class SSBMAction(Action):
         """Return the Action index of this controller state."""
         return reverse_action_lookup(self.state)
 
-    def get_slippi_bitmask(self) -> int:
+    def as_slippi_bitmask(self) -> Buttons.Logical:
         """Return action(s) as Slippi bitmask."""
-        pass
+        res = Buttons.Logical(Buttons.Logical.NONE)
+        for i, mask in enumerate(STATE_TO_SLIPPI):
+            if self.state[i]:
+                res |= mask
+
+        return res
+
+
 
     def __str__(self):  # noqa
         tupled_actions = zip(self.named_state, self.state)

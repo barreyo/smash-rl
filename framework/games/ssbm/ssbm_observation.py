@@ -12,6 +12,9 @@ class Position():
         self.x = x
         self.y = y
 
+    def __str__(self):
+        return f"(x={self.x}, y={self.y})"
+
 
 class SSBMObservation(Observation):
     """Class denoting the state of a frame."""

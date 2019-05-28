@@ -31,4 +31,4 @@ class DiscreteActionSpace(ActionSpace):
         return self.actions[index]
 
     def random_action(self) -> DiscreteAction:
-        return np.choice(self.actions)
+        return np.random.choice(self.actions)

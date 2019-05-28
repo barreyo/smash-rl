@@ -18,8 +18,9 @@ log = logging.getLogger(__name__)
 class SSBMAgent(Agent):
     """DQNetwork implementation for SSBM."""
 
-    def __init__(self):
+    def __init__(self, inference_only=False):
         super().__init__(SSBMActionSpace())
+        self.inference_only = inference_only
         self.q = DQN(
             observation_size=SSBMObservation.size(),
             action_size=self.action_space.n_actions,
@@ -30,7 +31,7 @@ class SSBMAgent(Agent):
         self.e_greedy = EGreedy()
 
     def act(self, observation: SSBMObservation, timestep: int) -> SSBMAction:
-        if self.e_greedy.predict(timestep):
+        if not self.inference_only and self.e_greedy.predict(timestep):
             return self.action_space.random_action()
 
         actions = self.q.predict(observation.as_array())

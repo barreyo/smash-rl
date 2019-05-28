@@ -45,8 +45,6 @@ class DQN():
         self.target_q_network = self._build_dense_network(
             self.observations_next, self.hidden_layers, 'target_DQN_Network')
 
-        # action_one_hot = tf.one_hot(
-        #     self.actions, self.action_size, 1.0, 0.0, name='action_one_hot')
         self.prediction = tf.reduce_sum(
             self.q_network * self.actions, reduction_indices=-1,
             name='q_acted')
@@ -82,7 +80,7 @@ class DQN():
         return output
 
     def predict(self, observation: List[float]) -> List[Any]:
-        return self.prediction.eval({self.observations: [observation]})
+        return self.q_network.eval({self.observations: [observation]}, session=self.session)
 
     def train(self, observations: List[List[float]],
               observations_next: List[List[float]], actions: List[List[float]],

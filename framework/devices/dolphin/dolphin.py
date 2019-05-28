@@ -1,10 +1,12 @@
 
+import binascii
 import configparser
 import os
 import pkgutil
 import shutil
 import socket
 from pathlib import Path
+from struct import unpack
 from typing import Text
 
 from framework.devices.device import Device
@@ -37,6 +39,10 @@ class Dolphin(Device):
         shutil.copy(str(self.memory_mapping_file), str(mem_file))
 
         # Bind the socket
+        try:
+            watcher_path.unlink()
+        except:
+            pass
         self.mem_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.mem_socket.bind(str(watcher_path))
 
@@ -58,12 +64,14 @@ class Dolphin(Device):
         if not pipes_dir.is_dir():
             pipes_dir.mkdir()
 
-        try:
-            os.mkfifo(fifo_path)
-        except OSError:
+        # try:
+        #     os.mkfifo(fifo_path)
+        # except OSError:
+        #     pass
+            # print("Deleting pipe and creating it agian...")
             # Try deleting the socket file and recreate it on error
-            Path(fifo_path).unlink()
-            os.mkfifo(fifo_path)
+            # Path(fifo_path).unlink()
+            # os.mkfifo(fifo_path)
 
         return fifo_path
 
@@ -111,6 +119,17 @@ class Dolphin(Device):
             return
 
         self.is_open = True
+
+    def read_state(self):
+        try:
+            data = self.mem_socket.recvfrom(9096)[0].decode('utf-8').splitlines()
+        except socket.timeout:
+            return None
+        # Strip the null terminator, pad with zeros, then convert to bytes
+        return data[0], binascii.unhexlify(data[1].strip('\x00').zfill(8))
+
+    def set_button_state(self, state):
+        self.pad.set_button_state(state)
 
     def close(self):
         if not self.is_open:
