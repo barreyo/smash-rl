@@ -49,6 +49,8 @@ class Dolphin(Device):
         config.set('Core', 'enablecheats', 'True')
         config.set('Input', 'backgroundinput', 'True')
 
+
+
     def __create_fifo_pipe(self, fifo_name: Text) -> Text:
         pipes_dir = self.dolphin_path / 'Pipes'
         fifo_path = str(pipes_dir / fifo_name)

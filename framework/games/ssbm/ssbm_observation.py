@@ -6,6 +6,7 @@ import numpy as np
 
 from framework.observation import Observation
 
+
 class Position():
     def __init__(self, x, y):
         self.x = x
@@ -47,6 +48,38 @@ class SSBMObservation(Observation):
         self.enemy_stocks = enemy_stocks
         self.player_percent = player_percent
         self.enemy_percent = enemy_percent
+
+    @property
+    def player_x(self):
+        return self.player_position.x
+
+    @player_x.setter
+    def player_x(self, val):
+        self.player_position.x = val
+
+    @property
+    def player_y(self):
+        return self.player_position.y
+
+    @player_y.setter
+    def player_y(self, val):
+        self.player_position.y = val
+
+    @property
+    def enemy_x(self):
+        return self.enemy_position.x
+
+    @enemy_x.setter
+    def enemy_x(self, val):
+        self.enemy_position.x = val
+
+    @property
+    def enemy_y(self):
+        return self.enemy_position.y
+
+    @enemy_y.setter
+    def enemy_y(self, val):
+        self.enemy_position.y = val
 
     def as_array(self) -> np.array:
         """
