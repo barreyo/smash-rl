@@ -11,3 +11,6 @@ class Device():
 
     def close(self):
         raise NotImplementedError("Implement close() function")
+
+    def read_state(self):
+        raise NotImplementedError("Implement read_state() function")

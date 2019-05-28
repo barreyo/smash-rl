@@ -45,13 +45,9 @@ class DolphinPad:
         self.path = path
         self.logger = logging.getLogger(self.__class__.__name__)
         self.prev = Buttons.Logical.NONE
-
-    def __enter__(self):
-        """Opens the fifo. Blocks until the other side is listening."""
         self.pipe = open(self.path, 'w', buffering=1)
-        return self
 
-    def __exit__(self, *args):
+    def __del__(self, *args):
         """Closes the fifo."""
         if self.pipe:
             self.pipe.close()
@@ -66,7 +62,7 @@ class DolphinPad:
             return self.BUTTONS_TO_CONTROLLER[button]
         return button.name
 
-    def set_button_state(self, button_state):
+    def set_button_state(self, button_state: Buttons.Logical):
         diff = self.prev ^ button_state # prev XOR new
         press = diff & button_state # Send press for: diff AND new
         release = diff & self.prev # Send release for: diff AND pref
