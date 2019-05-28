@@ -87,10 +87,8 @@ $ make tests
 TBD
 
 # Authors
-```
-[Johan Backman](https://github.com/barreyo)
-[Konstantinos Vaggelakos](https://github.com/kvaggelakos)
-```
+* [Johan Backman](https://github.com/barreyo)
+* [Konstantinos Vaggelakos](https://github.com/kvaggelakos)
 
 # License
 TBD
