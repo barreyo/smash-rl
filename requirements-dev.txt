@@ -2,4 +2,3 @@ autopep8
 isort
 flake8
 black
-

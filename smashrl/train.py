@@ -54,7 +54,7 @@ def run_offline_training_sequence(
             loss = agent.learn(obs, new_obs, action, reward, done)
             losses.append(loss)
 
-            print(action)
+            # print(action)
 
             if ts % 1000 == 0:
                 log.info(f"TS: {ts}, Loss: {loss}, "

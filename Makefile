@@ -1,22 +1,28 @@
 
-PROJECT_NAME 	?= smash-rl
+PROJECT_NAME 		?= smash-rl
+TESTS_DIR 			?= tests/
+REQUIREMENTS_IN 	?= requirements.in
+REQUIREMENTS_TXT 	?= requirements.txt
 
 # Formatting variables
 BOLD 			:= $(shell tput bold)
 RESET 			:= $(shell tput sgr0)
 
-.PHONY: dep-update dep-install clean help
+.PHONY: tests dep-update dep-install clean help
+
+tests:  ## Run all tests using PyTest
+	@python3.6 -m pytest -vx -s $(TESTS_DIR)
 
 dep-update:  ## Update all dependencies
-	@pip-compile requirements.in --upgrade
+	@pip-compile $(REQUIREMENTS_IN) --upgrade
 
 dep-install:  ## Install all python dependencies into environment
-	@python3.6 -m pip install -r requirements.txt
+	@python3.6 -m pip install -r $(REQUIREMENTS_TXT)
 
 clean:  ## Clean all Python artifacts and dependencies
 	@echo "$(BOLD)Remove dependencies...$(RESET)"
 	rm -rf src/
-	@echo "$(BOLD)Cleanup Python artifacts...$(RESET)"
+	@echo "$(BOLD)Cleaning up Python artifacts and cache files...$(RESET)"
 	find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
 	rm -rf .pytest_cache .hypothesis
 

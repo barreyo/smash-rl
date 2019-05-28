@@ -1,4 +1,6 @@
 -e git://github.com/barreyo/py-slippi.git#egg=py-slippi
+hypothesis
 numpy
 pip-tools
+pytest
 tensorflow
