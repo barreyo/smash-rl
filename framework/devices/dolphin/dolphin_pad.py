@@ -5,6 +5,9 @@ import time
 
 from slippi.event import Buttons  # TODO: Move in to "dolphin"?
 
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+
 
 def bits(n):
     while n:
@@ -45,8 +48,8 @@ class DolphinPad:
     MIN_COOLDOWN = 1.0/30.0
 
     def __init__(self, path):
+        log.info("Attaching Pad to Dolphin")
         self.path = path
-        self.logger = logging.getLogger(self.__class__.__name__)
         self.prev = Buttons.Logical.NONE
         self.pipe = open(self.path, 'w', buffering=1)
         self.last_command_time = time.time()
@@ -57,13 +60,12 @@ class DolphinPad:
             self.pipe.close()
 
     def _send_to_pipe(self, msg):
-        self.logger.info(msg)
+        log.info(msg)
         current_time = time.time()
         sleep_time = self.last_command_time + self.MIN_COOLDOWN - current_time
         if sleep_time > 0:
             time.sleep(sleep_time)
         self.last_command_time = current_time + sleep_time
-        print(msg)
         self.pipe.write('{}\n'.format(msg))
 
     def _get_button_name(self, button):

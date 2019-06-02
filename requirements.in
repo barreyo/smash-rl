@@ -4,3 +4,4 @@ numpy
 pip-tools
 pytest
 tensorflow
+transitions
