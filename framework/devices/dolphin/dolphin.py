@@ -1,6 +1,7 @@
 
 import binascii
 import configparser
+import errno
 import pkgutil
 import shutil
 import socket
@@ -43,6 +44,7 @@ class Dolphin(Device):
             pass
         self.mem_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.mem_socket.bind(str(watcher_path))
+        self.mem_socket.setblocking(False) # Nonblocking
 
     def __create_dolphin_config(self):
         dolphin_config_path = self.dolphin_path / 'Config' / 'Dolphin.ini'
@@ -117,13 +119,21 @@ class Dolphin(Device):
         self.is_open = True
 
     def read_state(self):
+        data = None
         try:
             data = self.mem_socket.recvfrom(
                 9096)[0].decode('utf-8').splitlines()
-        except socket.timeout:
-            return None
+        except socket.timeout: # Won't happen with nonblocking
+            return None, None
+        except socket.error as e:
+            if e.errno != errno.EAGAIN:
+                raise e
+
         # Strip the null terminator, pad with zeros, then convert to bytes
-        return data[0], binascii.unhexlify(data[1].strip('\x00').zfill(8))
+        if data is not None:
+            return data[0], binascii.unhexlify(data[1].strip('\x00').zfill(8))
+        else:
+            return None, None
 
     def set_button_state(self, state):
         self.pad.set_button_state(state)
