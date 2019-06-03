@@ -73,6 +73,8 @@ It plays! :fireworks: :beer:
 
 **TODO**:
 
+* Fix dolphin controller updates
+
 * Load game from beginning, set up correct controllers, pipes and inputs
 * Add device config object to pass into each device class
 

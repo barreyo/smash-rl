@@ -30,6 +30,7 @@ class Dolphin(Device):
         self.executable_path = executable_path
         self.iso_path = iso_path
         self.render = render
+        self.pad = DolphinPad(self.fifo_path)
 
         # Make sure all config files exist and have correct content
         self.__create_controller_config()
@@ -130,6 +131,9 @@ class Dolphin(Device):
             command.append("-v")
             command.append("Null") # Use the "Null" renderer
 
+        command.append("-u")
+        command.append(str(self.dolphin_path))
+
         command.append("-e")
         command.append(str(self.iso_path))
         log.info(f"Starting dolphin with: {' '.join(command)}")
@@ -139,7 +143,7 @@ class Dolphin(Device):
         log.info("Dolphin launched")
 
         # Set up controller
-        self.pad = DolphinPad(self.fifo_path)
+        self.pad.connect()
         self.is_open = True
 
     def read_state(self):

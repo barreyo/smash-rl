@@ -30,16 +30,16 @@ class DolphinPad:
 
     CONTINUOUS_BUTTONS = {
         'C': {
-            Buttons.Logical.CSTICK_DOWN: [0, -1],
-            Buttons.Logical.CSTICK_LEFT: [-1, 0],
-            Buttons.Logical.CSTICK_RIGHT: [1, 0],
-            Buttons.Logical.CSTICK_UP: [0, 1],
+            Buttons.Logical.CSTICK_DOWN: [0.5, 0],
+            Buttons.Logical.CSTICK_LEFT: [0, 0.5],
+            Buttons.Logical.CSTICK_RIGHT: [1, 0.5],
+            Buttons.Logical.CSTICK_UP: [0.5, 1],
         },
         'MAIN': {
-            Buttons.Logical.JOYSTICK_DOWN: [0, -1],
-            Buttons.Logical.JOYSTICK_LEFT: [-1, 0],
-            Buttons.Logical.JOYSTICK_RIGHT: [1, 0],
-            Buttons.Logical.JOYSTICK_UP: [0, 1],
+            Buttons.Logical.JOYSTICK_DOWN: [0.5, 0],
+            Buttons.Logical.JOYSTICK_LEFT: [0, 0.5],
+            Buttons.Logical.JOYSTICK_RIGHT: [1, 0.5],
+            Buttons.Logical.JOYSTICK_UP: [0.5, 1],
         }
     }
     ALL_CONTINUOUS_BUTTONS = functools.reduce(
@@ -51,7 +51,6 @@ class DolphinPad:
         log.info("Attaching Pad to Dolphin")
         self.path = path
         self.prev = Buttons.Logical.NONE
-        self.pipe = open(self.path, 'w', buffering=1)
         self.last_command_time = time.time()
 
     def __del__(self, *args):
@@ -60,6 +59,9 @@ class DolphinPad:
             self.pipe.close()
         except:
             pass
+
+    def connect(self):
+        self.pipe = open(self.path, 'w', buffering=1)
 
     def _send_to_pipe(self, msg):
         log.info(msg)
@@ -96,10 +98,12 @@ class DolphinPad:
         for button in Buttons.Logical:
             self.release_button(button)
 
-    def press_release_button(self, button):
+    def press_release_button(self, button, min_timeout=0):
         """Press and release a button. This is only for testing, don't use."""
         assert button in Buttons.Logical
         self.press_button(button)
+        if min_timeout > 0:
+            time.sleep(min_timeout)
         self.release_button(button)
 
     def press_button(self, button):
@@ -124,8 +128,10 @@ class DolphinPad:
     def release_button(self, button):
         """Release a button."""
         assert button in Buttons.Logical
-        if button in self.ALL_CONTINUOUS_BUTTONS:
-            pass  # TODO: Fix
+        if button in self.CONTINUOUS_BUTTONS['C'].keys():
+            self._send_to_pipe('SET C 0.5 0.5')
+        elif button in self.CONTINUOUS_BUTTONS['MAIN'].keys():
+            self._send_to_pipe('SET MAIN 0.5 0.5')
         else:
             self._send_to_pipe('RELEASE {}'.format(
                 self._get_button_name(button)))

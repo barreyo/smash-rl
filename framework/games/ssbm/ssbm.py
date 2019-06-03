@@ -9,8 +9,8 @@ from transitions import Machine
 from framework.agent import Agent
 from framework.devices.device import Device
 from framework.games.game import Game
+from framework.games.ssbm.ssbm_menu_helper import SSBMMenuHelper
 from framework.games.ssbm.ssbm_observation import SSBMObservation
-from slippi.event import Buttons
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ ADDRESS_TO_PROPERTY = {
 class SSBMGame(Game):
 
     STATES = ['not_started', 'start_menu',
-              'character_selection', 'stage_selection', 'game']
+              'character_selection', 'stage_selection', 'game_launched']
 
     def __init__(self, device: Device, agents: List[Agent], sampling_window: float):
         super().__init__(device, agents=agents)
@@ -46,6 +46,7 @@ class SSBMGame(Game):
         self.frame_counter = 0
         self.sampling_window = sampling_window
         self.machine = self._build_state_machine()
+        self.menu_helper = SSBMMenuHelper(self.device.pad)
 
     def _build_state_machine(self):
         machine = Machine(model=self, states=self.STATES,
@@ -59,9 +60,9 @@ class SSBMGame(Game):
         machine.add_transition(
             trigger='select_stage', source='character_selection', dest='stage_selection')
         machine.add_transition(trigger='launch_game',
-                               source='stage_selection', dest='game')
+                               source='stage_selection', dest='game_launched')
         machine.add_transition(trigger='restart_game',
-                               source='game', dest='character_selection')
+                               source='game_launched', dest='character_selection')
         return machine
 
     def run(self):
@@ -94,26 +95,17 @@ class SSBMGame(Game):
         setattr(self.current_observation, property_name, value)
 
     def on_enter_start_menu(self):
-        self.device.pad.press_release_button(Buttons.Logical.START)
-        time.sleep(5)
-        self.device.pad.press_release_button(Buttons.Logical.START)
-        time.sleep(5)
-        self.device.pad.press_release_button(Buttons.Logical.DPAD_DOWN)
+        self.menu_helper.go_to_character_select()
         time.sleep(2)
-        self.device.pad.press_release_button(Buttons.Logical.A)
-        time.sleep(1)
-        self.device.pad.press_release_button(Buttons.Logical.A)
-        time.sleep(1)
+        self.select_characters()
 
-    def on_enter_select_characters(self):
-        self.device.pad.press_release_button(Buttons.Logical.START)
-        time.sleep(4)
+    def on_enter_character_selection(self):
+        self.menu_helper.select_characters()
+        self.select_stage()
 
-    def on_enter_select_stage(self):
-        pass
+    def on_enter_stage_selection(self):
+        self.menu_helper.select_stage()
+        self.launch_game()
 
-    def on_enter_launch_game(self):
-        pass
-
-    def on_enter_restart_game(self):
-        pass
+    def on_enter_game_launched(self):
+        self.menu_helper.start_game()
