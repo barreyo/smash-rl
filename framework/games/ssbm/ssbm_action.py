@@ -106,6 +106,3 @@ def reverse_action_lookup(controller_state: Union[np.array, SSBMAction]) -> int:
         return controller_state.as_index()
 
     return STATE_TO_INDEX_LOOKUP[tuple(controller_state)]
-
-
-print(VALID_ACTIONS)
