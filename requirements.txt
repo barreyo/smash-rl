@@ -29,11 +29,12 @@ py==1.8.0                 # via pytest
 pytest==4.5.0
 python-dateutil==2.8.0
 pytz==2019.1
-six==1.12.0               # via absl-py, grpcio, h5py, keras-preprocessing, mock, pip-tools, protobuf, pytest, python-dateutil, tensorboard, tensorflow, tensorflow-estimator
+six==1.12.0               # via absl-py, grpcio, h5py, keras-preprocessing, mock, pip-tools, protobuf, pytest, python-dateutil, tensorboard, tensorflow, tensorflow-estimator, transitions
 tensorboard==1.13.1       # via tensorflow
 tensorflow-estimator==1.13.0  # via tensorflow
 tensorflow==1.13.1
 termcolor==1.1.0          # via tensorflow
+transitions==0.6.9
 wcwidth==0.1.7            # via pytest
 werkzeug==0.15.4          # via tensorboard
 wheel==0.33.4             # via tensorboard, tensorflow

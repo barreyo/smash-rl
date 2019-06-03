@@ -5,6 +5,9 @@ import time
 
 from slippi.event import Buttons  # TODO: Move in to "dolphin"?
 
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+
 
 def bits(n):
     while n:
@@ -42,11 +45,14 @@ class DolphinPad:
     ALL_CONTINUOUS_BUTTONS = functools.reduce(
         lambda x, y: x + list(y.keys()), list(CONTINUOUS_BUTTONS.values()), [])
 
+    MIN_COOLDOWN = 1.0/30.0
+
     def __init__(self, path):
+        log.info("Attaching Pad to Dolphin")
         self.path = path
-        self.logger = logging.getLogger(self.__class__.__name__)
         self.prev = Buttons.Logical.NONE
         self.pipe = open(self.path, 'w', buffering=1)
+        self.last_command_time = time.time()
 
     def __del__(self, *args):
         """Closes the fifo."""
@@ -54,8 +60,12 @@ class DolphinPad:
             self.pipe.close()
 
     def _send_to_pipe(self, msg):
-        self.logger.info(msg)
-        print(msg)
+        log.info(msg)
+        current_time = time.time()
+        sleep_time = self.last_command_time + self.MIN_COOLDOWN - current_time
+        if sleep_time > 0:
+            time.sleep(sleep_time)
+        self.last_command_time = current_time + sleep_time
         self.pipe.write('{}\n'.format(msg))
 
     def _get_button_name(self, button):
@@ -88,7 +98,6 @@ class DolphinPad:
         """Press and release a button. This is only for testing, don't use."""
         assert button in Buttons.Logical
         self.press_button(button)
-        time.sleep(0.1)
         self.release_button(button)
 
     def press_button(self, button):

@@ -50,7 +50,7 @@ def create_action_from_button(logical):
     )
 
 
-def format_training_data(games: List[Game]) -> List[List[
+def format_training_data(game: Game) -> List[List[
         Tuple[SSBMObservation, SSBMAction]]]:
     """
     Grab a bunch of games and split out each game into training format.
@@ -63,7 +63,7 @@ def format_training_data(games: List[Game]) -> List[List[
     NOTE: Only formats games that have valid characters and a valid stage.
 
     Arguments:
-    games -- A list of Slippi games
+    game -- A Slippi game
 
     Returns:
     A list of lists of tuples (SSBMObservation, SSBMAction[Action])
@@ -71,57 +71,55 @@ def format_training_data(games: List[Game]) -> List[List[
     """
     training_data = list()
 
-    for game in games:
+    if not is_valid_stage(game.start.stage):
+        log.info(f'Skipping game... not a valid stage({game.start.stage})')
+        return []
 
-        if not is_valid_stage(game.start.stage):
-            log.info(f'Skipping game... not a valid stage({game.start.stage})')
-            continue
+    s1, s2 = list(), list()
 
-        s1, s2 = list(), list()
+    for frame in game.frames:
+        try:
+            p1_pre = frame.ports[0].leader.pre
+            p2_pre = frame.ports[2].leader.pre
 
-        for frame in game.frames:
-            try:
-                p1_pre = frame.ports[0].leader.pre
-                p2_pre = frame.ports[2].leader.pre
+            p1_post = frame.ports[0].leader.post
+            p2_post = frame.ports[2].leader.post
+        except AttributeError:
+            return []
 
-                p1_post = frame.ports[0].leader.post
-                p2_post = frame.ports[2].leader.post
-            except AttributeError:
-                continue
+        if is_valid_character(p1_post.character):
+            p1_obs = SSBMObservation(Position(p1_pre.position.x,
+                                                p1_pre.position.y),
+                                        Position(p2_pre.position.x,
+                                                p2_pre.position.y),
+                                        p1_post.stocks, p2_post.stocks,
+                                        p1_post.damage, p2_post.damage)
+            p1_action = create_action_from_button(p1_pre.buttons.logical)
+            p1_frame_tuple = (p1_obs, p1_action)
+            s1.append(p1_frame_tuple)
 
-            if is_valid_character(p1_post.character):
-                p1_obs = SSBMObservation(Position(p1_pre.position.x,
-                                                  p1_pre.position.y),
-                                         Position(p2_pre.position.x,
-                                                  p2_pre.position.y),
-                                         p1_post.stocks, p2_post.stocks,
-                                         p1_post.damage, p2_post.damage)
-                p1_action = create_action_from_button(p1_pre.buttons.logical)
-                p1_frame_tuple = (p1_obs, p1_action)
-                s1.append(p1_frame_tuple)
+        if is_valid_character(p2_post.character):
+            p2_obs = SSBMObservation(Position(p2_pre.position.x,
+                                                p2_pre.position.y),
+                                        Position(p1_pre.position.x,
+                                                p1_pre.position.y),
+                                        p2_post.stocks, p1_post.stocks,
+                                        p2_post.damage, p1_post.damage)
+            p2_action = create_action_from_button(p2_pre.buttons.logical)
+            p2_frame_tuple = (p2_obs, p2_action)
+            s2.append(p2_frame_tuple)
 
-            if is_valid_character(p2_post.character):
-                p2_obs = SSBMObservation(Position(p2_pre.position.x,
-                                                  p2_pre.position.y),
-                                         Position(p1_pre.position.x,
-                                                  p1_pre.position.y),
-                                         p2_post.stocks, p1_post.stocks,
-                                         p2_post.damage, p1_post.damage)
-                p2_action = create_action_from_button(p2_pre.buttons.logical)
-                p2_frame_tuple = (p2_obs, p2_action)
-                s2.append(p2_frame_tuple)
+    if s1:
+        log.info('Adding game session for P1')
+        training_data.append(s1)
 
-        if s1:
-            log.info('Adding game session for P1')
-            training_data.append(s1)
+    if s2:
+        log.info('Adding game session for P2')
+        training_data.append(s2)
 
-        if s2:
-            log.info('Adding game session for P2')
-            training_data.append(s2)
-
-        if s1 or s2:
-            winner = 'p1' if frame.ports[0].leader.post.stocks > 0 else 'p2'
-            log.info(f'Winner: {winner}')
+    if s1 or s2:
+        winner = 'p1' if frame.ports[0].leader.post.stocks > 0 else 'p2'
+        log.info(f'Winner: {winner}')
 
     return training_data
 

@@ -6,11 +6,11 @@ class Device():
         self.device_name = device_name
         self.is_open = False
 
-    def open(self):
-        raise NotImplementedError("Implement open() function")
+    def launch(self):
+        raise NotImplementedError("Implement launch() function")
 
-    def close(self):
-        raise NotImplementedError("Implement close() function")
+    def terminate(self):
+        raise NotImplementedError("Implement terminate() function")
 
     def read_state(self):
         raise NotImplementedError("Implement read_state() function")

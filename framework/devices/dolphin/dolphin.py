@@ -1,9 +1,14 @@
 
 import binascii
 import configparser
+import errno
+import logging
+import os
 import pkgutil
 import shutil
 import socket
+import subprocess
+import time
 from pathlib import Path
 from typing import Text
 
@@ -11,15 +16,20 @@ from framework.devices.device import Device
 from framework.devices.dolphin.dolphin_pad import DolphinPad
 from framework.devices.dolphin.exceptions import DolphinNotFoundError
 
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+
 
 class Dolphin(Device):
 
-    def __init__(self, memory_mapping: Path):
+    def __init__(self, executable_path: Path, iso_path: Path, memory_mapping: Path, render: bool = True):
         super().__init__('dolphin')
         self.dolphin_path = self.__get_dolphin_home_path()
         self.fifo_path = self.__create_fifo_pipe('pipe')
-        self.pad = DolphinPad(self.fifo_path)
         self.memory_mapping_file = memory_mapping
+        self.executable_path = executable_path
+        self.iso_path = iso_path
+        self.render = render
 
         # Make sure all config files exist and have correct content
         self.__create_controller_config()
@@ -43,6 +53,7 @@ class Dolphin(Device):
             pass
         self.mem_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.mem_socket.bind(str(watcher_path))
+        self.mem_socket.setblocking(False) # Nonblocking
 
     def __create_dolphin_config(self):
         dolphin_config_path = self.dolphin_path / 'Config' / 'Dolphin.ini'
@@ -55,19 +66,19 @@ class Dolphin(Device):
 
     def __create_fifo_pipe(self, fifo_name: Text) -> Text:
         pipes_dir = self.dolphin_path / 'Pipes'
-        fifo_path = str(pipes_dir / fifo_name)
+        fifo_path = pipes_dir / fifo_name
 
         if not pipes_dir.is_dir():
             pipes_dir.mkdir()
 
-        # try:
-        #     os.mkfifo(fifo_path)
-        # except OSError:
-        #     pass
-            # print("Deleting pipe and creating it agian...")
-            # Try deleting the socket file and recreate it on error
-            # Path(fifo_path).unlink()
-            # os.mkfifo(fifo_path)
+        if fifo_path.exists():
+            fifo_path.unlink()
+
+        fifo_path = str(fifo_path)
+        try:
+            os.mkfifo(fifo_path)
+        except OSError:
+            print("Looks like pipe already exists")
 
         return fifo_path
 
@@ -109,28 +120,55 @@ class Dolphin(Device):
             "Dolphin emulator could not be found on the system. "
             "Please install Dolphin and try again.")
 
-    def open(self):
+    def launch(self):
         # Device is already running, nothing to do here
         if self.is_open:
             return
 
+        command = [self.executable_path]
+        if not self.render:
+            command.append("-v")
+            command.append("Null") # Use the "Null" renderer
+
+        command.append("-e")
+        command.append(self.iso_path)
+        command.append("-u")
+        command.append(str(self.dolphin_path))
+        self.process = subprocess.Popen(command)
+
+        time.sleep(10)
+        log.info("Dolphin launched")
+        # Set up controller
+
+        self.pad = DolphinPad(self.fifo_path)
         self.is_open = True
 
     def read_state(self):
+        data = None
         try:
             data = self.mem_socket.recvfrom(
                 9096)[0].decode('utf-8').splitlines()
-        except socket.timeout:
-            return None
+        except socket.timeout: # Won't happen with nonblocking
+            return None, None
+        except socket.error as e:
+            if e.errno != errno.EAGAIN:
+                raise e
+
         # Strip the null terminator, pad with zeros, then convert to bytes
-        return data[0], binascii.unhexlify(data[1].strip('\x00').zfill(8))
+        if data is not None:
+            return data[0], binascii.unhexlify(data[1].strip('\x00').zfill(8))
+        else:
+            return None, None
 
     def set_button_state(self, state):
         self.pad.set_button_state(state)
 
-    def close(self):
+    def terminate(self):
         if not self.is_open:
             return
+
+        if self.process != None:
+            self.process.terminate()
 
         self.is_open = False
 
