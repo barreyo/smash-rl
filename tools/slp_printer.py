@@ -1,8 +1,10 @@
 """Prints a .slp file frame by frame."""
 
+from os import listdir
+
 from slippi import Game
 from slippi.event import Buttons
-from framework.games.ssbm.ssbm_action import SSBMAction
+from framework.games.ssbm.ssbm_action import SSBMAction, STATE_TO_INDEX_LOOKUP
 from framework.games.ssbm.ssbm_observation import SSBMObservation
 
 
@@ -11,19 +13,25 @@ def bitfield(n):
 
 
 def _main():
-    games = [Game('Game_20190224T233757.slp'),
-             Game('Game_20190224T234808.slp'),
-             Game('Game_20190224T222630.slp'),
-             Game('Game_20190224T231855.slp')]
+    game_files = listdir('./data')[200:1000]
+    games = []
+    for n, f_path in enumerate(game_files):
+        if not f_path.endswith('.slp'):
+            continue
+
+        print(f'Reading game {n + 1} of {len(game_files)}')
+        try:
+            games.append(Game('./data/' + f_path))
+        except Exception:
+            pass
+
     states = []
     button_set = set()
-    possible_actions = []
-    for game in games:
-        print(game.start)
-        print(game.start.players)
+    possible_actions = set()
+    for n, game in enumerate(games):
+        print(f'working on game {n + 1} of {len(games)}')
 
         for frame in game.frames:
-            print(frame.ports)
             # ICs is never played so do not worry about follower
             try:
                 p1_pre = frame.ports[0].leader.pre
@@ -83,11 +91,13 @@ def _main():
         if b & Buttons.Logical.Z:
             res.state[15] = 1
 
-        possible_actions.append(res)
-        print(res)
+        possible_actions.add(tuple(res.state))
 
-    print(len(possible_actions))
-    print(len(set(possible_actions)))
+    print(f'Actions found: {len(possible_actions)}')
+
+    for possible in possible_actions:
+        if possible not in STATE_TO_INDEX_LOOKUP:
+            print(f'np.array([{str(possible)[1:-1]}]),')
 
 
 if __name__ == '__main__':
