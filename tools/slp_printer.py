@@ -1,6 +1,6 @@
 """Prints a .slp file frame by frame."""
 
-from os import listdir
+import os
 
 from slippi import Game
 from slippi.event import Buttons
@@ -12,24 +12,28 @@ def bitfield(n):
     return [1 if digit == '1' else 0 for digit in bin(n)[2:]]
 
 
-def _main():
-    game_files = listdir('./data')[200:1000]
-    games = []
-    for n, f_path in enumerate(game_files):
-        if not f_path.endswith('.slp'):
-            continue
+def read_games(folder: str):
+    files = [os.path.join(folder, x)
+             for x in os.listdir(folder) if x.endswith('.slp')]
 
-        print(f'Reading game {n + 1} of {len(game_files)}')
+    for game in files:
         try:
-            games.append(Game('./data/' + f_path))
+            yield len(files), Game(game)
         except Exception:
-            pass
+            yield len(files), None
+
+
+def _main():
+    games = read_games('./data')
 
     states = []
     button_set = set()
     possible_actions = set()
-    for n, game in enumerate(games):
-        print(f'working on game {n + 1} of {len(games)}')
+    for n, (max_g, game) in enumerate(games):
+        print(f'Working on game {n + 1} of {max_g}')
+
+        if game is None:
+            continue
 
         for frame in game.frames:
             # ICs is never played so do not worry about follower
