@@ -14,9 +14,11 @@ class Session():
         self.agent = SSBMAgent(inference_only=True)
         self.agent.load()
         self.device = Dolphin(
-            executable_path=Path("/Users/kostas/Projects/dolphin/build//Binaries/Dolphin.app/Contents/MacOS/Dolphin"),
+            executable_path=Path(
+                "/Users/kostas/Projects/dolphin/build//Binaries/Dolphin.app/Contents/MacOS/Dolphin"),
             iso_path=Path("/Users/kostas/Downloads/isos/SSBM.iso"),
-            memory_mapping=Path("/Users/kostas/Projects/smash-rl/framework/devices/dolphin/config/Locations.txt"),
+            memory_mapping=Path(
+                "/Users/kostas/Projects/smash-rl/framework/devices/dolphin/config/Locations.txt"),
             render=True
         )
         self.game = SSBMGame(self.device, [self.agent], self.SAMPLING_WINDOW)

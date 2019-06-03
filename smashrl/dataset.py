@@ -89,22 +89,22 @@ def format_training_data(game: Game) -> List[List[
 
         if is_valid_character(p1_post.character):
             p1_obs = SSBMObservation(Position(p1_pre.position.x,
-                                                p1_pre.position.y),
-                                        Position(p2_pre.position.x,
-                                                p2_pre.position.y),
-                                        p1_post.stocks, p2_post.stocks,
-                                        p1_post.damage, p2_post.damage)
+                                              p1_pre.position.y),
+                                     Position(p2_pre.position.x,
+                                              p2_pre.position.y),
+                                     p1_post.stocks, p2_post.stocks,
+                                     p1_post.damage, p2_post.damage)
             p1_action = create_action_from_button(p1_pre.buttons.logical)
             p1_frame_tuple = (p1_obs, p1_action)
             s1.append(p1_frame_tuple)
 
         if is_valid_character(p2_post.character):
             p2_obs = SSBMObservation(Position(p2_pre.position.x,
-                                                p2_pre.position.y),
-                                        Position(p1_pre.position.x,
-                                                p1_pre.position.y),
-                                        p2_post.stocks, p1_post.stocks,
-                                        p2_post.damage, p1_post.damage)
+                                              p2_pre.position.y),
+                                     Position(p1_pre.position.x,
+                                              p1_pre.position.y),
+                                     p2_post.stocks, p1_post.stocks,
+                                     p2_post.damage, p1_post.damage)
             p2_action = create_action_from_button(p2_pre.buttons.logical)
             p2_frame_tuple = (p2_obs, p2_action)
             s2.append(p2_frame_tuple)
