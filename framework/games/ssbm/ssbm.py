@@ -95,7 +95,7 @@ class SSBMGame(Game):
 
     def on_enter_start_menu(self):
         self.device.pad.press_release_button(Buttons.Logical.START)
-        time.sleep(2)
+        time.sleep(5)
         self.device.pad.press_release_button(Buttons.Logical.START)
         time.sleep(5)
         self.device.pad.press_release_button(Buttons.Logical.DPAD_DOWN)

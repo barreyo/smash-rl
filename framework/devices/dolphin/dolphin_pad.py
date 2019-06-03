@@ -56,8 +56,10 @@ class DolphinPad:
 
     def __del__(self, *args):
         """Closes the fifo."""
-        if self.pipe:
+        try:
             self.pipe.close()
+        except:
+            pass
 
     def _send_to_pipe(self, msg):
         log.info(msg)
@@ -65,7 +67,7 @@ class DolphinPad:
         sleep_time = self.last_command_time + self.MIN_COOLDOWN - current_time
         if sleep_time > 0:
             time.sleep(sleep_time)
-        self.last_command_time = current_time + sleep_time
+        self.last_command_time = time.time()
         self.pipe.write('{}\n'.format(msg))
 
     def _get_button_name(self, button):

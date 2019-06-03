@@ -37,16 +37,16 @@ def run_offline_training_sequence(
     log.info('Formatting data')
 
     for game_idx, unformatted_game in enumerate(games):
-        games = format_training_data(unformatted_game)
+        formatted_games = format_training_data(unformatted_game)
 
-        for game in games:
+        log.info(f"Starting game: {game_idx + 1}/{len(games)}")
+        for game in formatted_games:
 
             obs, action = game[0]
             observations = [obs]
             losses = []
             rewards = []
 
-            log.info(f"Starting game: {game_idx + 1}/{len(games)}")
             for ts, (new_obs, next_action) in enumerate(game[1:]):
 
                 reward = reward_calculator.cost(new_obs, observations, ts)
