@@ -68,17 +68,17 @@ class Dolphin(Device):
         pipes_dir = self.dolphin_path / 'Pipes'
         fifo_path = pipes_dir / fifo_name
 
-        if not pipes_dir.is_dir():
-            pipes_dir.mkdir()
+        # if not pipes_dir.is_dir():
+        #     pipes_dir.mkdir()
 
-        if fifo_path.exists():
-            fifo_path.unlink()
+        # if fifo_path.exists():
+        #     fifo_path.unlink()
 
-        fifo_path = str(fifo_path)
-        try:
-            os.mkfifo(fifo_path)
-        except OSError:
-            print("Looks like pipe already exists")
+        # fifo_path = str(fifo_path)
+        # try:
+        #     os.mkfifo(fifo_path)
+        # except OSError:
+        #     print("Looks like pipe already exists")
 
         return fifo_path
 
@@ -125,21 +125,20 @@ class Dolphin(Device):
         if self.is_open:
             return
 
-        command = [self.executable_path]
+        command = [str(self.executable_path)]
         if not self.render:
             command.append("-v")
             command.append("Null") # Use the "Null" renderer
 
         command.append("-e")
-        command.append(self.iso_path)
-        command.append("-u")
-        command.append(str(self.dolphin_path))
-        self.process = subprocess.Popen(command)
+        command.append(str(self.iso_path))
+        log.info(f"Starting dolphin with: {' '.join(command)}")
 
+        self.process = subprocess.Popen(command)
         time.sleep(10)
         log.info("Dolphin launched")
-        # Set up controller
 
+        # Set up controller
         self.pad = DolphinPad(self.fifo_path)
         self.is_open = True
 
@@ -179,4 +178,10 @@ class Dolphin(Device):
         except AttributeError:
             pass
 
+        try:
+            self.terminate()
+        except:
+            pass
+
+        self.process = None
         self.mem_socket = None
