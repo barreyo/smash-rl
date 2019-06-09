@@ -13,23 +13,25 @@ click==7.0                # via pip-tools
 gast==0.2.2               # via tensorflow
 grpcio==1.21.1            # via tensorboard, tensorflow
 h5py==2.9.0               # via keras-applications
-hypothesis==4.23.9
-importlib-metadata==0.15  # via pluggy
-keras-applications==1.0.7  # via tensorflow
-keras-preprocessing==1.0.9  # via tensorflow
+hypothesis==4.24.3
+importlib-metadata==0.17  # via pluggy, pytest
+keras-applications==1.0.8  # via tensorflow
+keras-preprocessing==1.1.0  # via tensorflow
 markdown==3.1.1           # via tensorboard
 mock==3.0.5               # via tensorflow-estimator
 more-itertools==7.0.0     # via pytest
 numpy==1.16.4
-pip-tools==3.7.0
+packaging==19.0           # via pytest
+pip-tools==3.8.0
 pluggy==0.12.0            # via pytest
-protobuf==3.7.1           # via tensorboard, tensorflow
+protobuf==3.8.0           # via tensorboard, tensorflow
 py-ubjson==0.13.0
 py==1.8.0                 # via pytest
-pytest==4.5.0
+pyparsing==2.4.0          # via packaging
+pytest==4.6.2
 python-dateutil==2.8.0
 pytz==2019.1
-six==1.12.0               # via absl-py, grpcio, h5py, keras-preprocessing, mock, pip-tools, protobuf, pytest, python-dateutil, tensorboard, tensorflow, tensorflow-estimator, transitions
+six==1.12.0               # via absl-py, grpcio, h5py, keras-preprocessing, mock, packaging, pip-tools, protobuf, pytest, python-dateutil, tensorboard, tensorflow, tensorflow-estimator, transitions
 tensorboard==1.13.1       # via tensorflow
 tensorflow-estimator==1.13.0  # via tensorflow
 tensorflow==1.13.1
