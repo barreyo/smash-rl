@@ -28,11 +28,27 @@ class SSBMMenuHelper:
 
         # Select p2 as CPU
         self.pad.press_release_button(Buttons.Logical.JOYSTICK_RIGHT, 0.05)
-        self.pad.press_release_button(Buttons.Logical.JOYSTICK_DOWN, 0.09)
+        self.pad.press_release_button(Buttons.Logical.JOYSTICK_DOWN, 0.085)
         self.pad.press_release_button(Buttons.Logical.A)
 
+        # Confirm
+        time.sleep(0.5)
+        self.pad.press_release_button(Buttons.Logical.START)
+        time.sleep(1)
+
     def select_stage(self):
-        pass
+        self.pad.press_release_button(Buttons.Logical.JOYSTICK_UP, 0.005)
+        time.sleep(0.5)
 
     def start_game(self):
-        pass
+        self.pad.press_release_button(Buttons.Logical.A)
+
+    def exit_stats_screen(self):
+        time.sleep(2)
+        self.pad.press_release_button(Buttons.Logical.START)
+        time.sleep(1)
+        self.pad.press_release_button(Buttons.Logical.START)
+
+    def preselect_characters(self):
+        time.sleep(2)
+        self.pad.press_release_button(Buttons.Logical.START)

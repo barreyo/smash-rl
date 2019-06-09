@@ -61,9 +61,24 @@ class Dolphin(Device):
         config = configparser.SafeConfigParser()
         config.read(dolphin_config_path)
 
+        # Dolphin config
         # config.set('Core', 'SIDevice', )
         config.set('Core', 'enablecheats', 'True')
         config.set('Input', 'backgroundinput', 'True')
+        with open(dolphin_config_path, 'w') as dcp:
+            config.write(dcp)
+
+        # TODO: Move this into the game
+        # Game specific config
+        melee_config_path = self.dolphin_path  / "GameSettings" / "GALE01.ini"
+        config = configparser.SafeConfigParser(allow_no_value=True)
+        config.optionxform = str
+        config.read(melee_config_path)
+        if not config.has_section("Gecko_Enabled"):
+            config.add_section("Gecko_Enabled")
+        config.set("Gecko_Enabled", "$Netplay Community Settings")
+        with open(melee_config_path, 'w') as dolphinfile:
+            config.write(dolphinfile)
 
     def __create_fifo_pipe(self, fifo_name: Text) -> Text:
         pipes_dir = self.dolphin_path / 'Pipes'

@@ -24,17 +24,20 @@ class Session():
         )
         self.game = SSBMGame(self.device, [self.agent], self.SAMPLING_WINDOW)
 
-    def start_game(self):
+    def start_session(self):
         self.device.launch()
-        self.game.device_ready()
-        self.game.run()
+        self.game.netplay()
+
+        while True:
+            self.game.run()
+            self.game.reset()
         # self.device.close()
         # return self.game.result
 
 
 def __main():
     session = Session()
-    session.start_game()
+    session.start_session()
 
 
 if __name__ == "__main__":
