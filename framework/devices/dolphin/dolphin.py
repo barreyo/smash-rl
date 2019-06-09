@@ -54,7 +54,7 @@ class Dolphin(Device):
             pass
         self.mem_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.mem_socket.bind(str(watcher_path))
-        self.mem_socket.setblocking(False) # Nonblocking
+        self.mem_socket.setblocking(False)  # Nonblocking
 
     def __create_dolphin_config(self):
         dolphin_config_path = self.dolphin_path / 'Config' / 'Dolphin.ini'
@@ -70,7 +70,7 @@ class Dolphin(Device):
 
         # TODO: Move this into the game
         # Game specific config
-        melee_config_path = self.dolphin_path  / "GameSettings" / "GALE01.ini"
+        melee_config_path = self.dolphin_path / "GameSettings" / "GALE01.ini"
         config = configparser.SafeConfigParser(allow_no_value=True)
         config.optionxform = str
         config.read(melee_config_path)
@@ -84,17 +84,17 @@ class Dolphin(Device):
         pipes_dir = self.dolphin_path / 'Pipes'
         fifo_path = pipes_dir / fifo_name
 
-        # if not pipes_dir.is_dir():
-        #     pipes_dir.mkdir()
+        if not pipes_dir.is_dir():
+            pipes_dir.mkdir()
 
-        # if fifo_path.exists():
-        #     fifo_path.unlink()
+        if fifo_path.exists():
+            return
 
-        # fifo_path = str(fifo_path)
-        # try:
-        #     os.mkfifo(fifo_path)
-        # except OSError:
-        #     print("Looks like pipe already exists")
+        fifo_path = str(fifo_path)
+        try:
+            os.mkfifo(fifo_path)
+        except OSError:
+            raise
 
         return fifo_path
 
@@ -144,7 +144,7 @@ class Dolphin(Device):
         command = [str(self.executable_path)]
         if not self.render:
             command.append("-v")
-            command.append("Null") # Use the "Null" renderer
+            command.append("Null")  # Use the "Null" renderer
 
         command.append("-u")
         command.append(str(self.dolphin_path))
@@ -166,7 +166,7 @@ class Dolphin(Device):
         try:
             data = self.mem_socket.recvfrom(
                 9096)[0].decode('utf-8').splitlines()
-        except socket.timeout: # Won't happen with nonblocking
+        except socket.timeout:  # Won't happen with nonblocking
             return None, None
         except socket.error as e:
             if e.errno != errno.EAGAIN:

@@ -1,6 +1,7 @@
 """Prints a .slp file frame by frame."""
 
 import os
+import numpy as np
 
 from slippi import Game
 from slippi.event import Buttons
@@ -29,6 +30,7 @@ def _main():
     states = []
     button_set = set()
     possible_actions = set()
+    result = []
     for n, (max_g, game) in enumerate(games):
         print(f'Working on game {n + 1} of {max_g}')
 
@@ -100,8 +102,11 @@ def _main():
     print(f'Actions found: {len(possible_actions)}')
 
     for possible in possible_actions:
-        if possible not in STATE_TO_INDEX_LOOKUP:
-            print(f'np.array([{str(possible)[1:-1]}]),')
+        action = np.array(list(possible))
+        result.append(action)
+        # print(f'np.array([{str(possible)[1:-1]}]),')
+
+    np.save('new_actions_file', np.array(result))
 
 
 if __name__ == '__main__':

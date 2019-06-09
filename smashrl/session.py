@@ -1,4 +1,5 @@
 
+import argparse
 from pathlib import Path
 
 from framework.devices.dolphin.dolphin import Dolphin
@@ -10,16 +11,14 @@ class Session():
 
     SAMPLING_WINDOW = 1.0/15.0
 
-    def __init__(self):
+    def __init__(self, args):
         self.agent = SSBMAgent(inference_only=True)
         self.agent.load()
         self.device = Dolphin(
-            executable_path=Path(
-                "/Users/kostas/Projects/dolphin/build/Binaries/Dolphin.app/Contents/MacOS/Dolphin"),
-                # "/Users/kostas/Projects/Ishiiruka/build/Binaries/Dolphin.app/Contents/MacOS/Dolphin"),
-            iso_path=Path("/Users/kostas/Downloads/isos/SSBM.iso"),
+            executable_path=Path(args.dolphin_bin),
+            iso_path=Path(args.game_iso),
             memory_mapping=Path(
-                "/Users/kostas/Projects/smash-rl/framework/devices/dolphin/config/Locations.txt"),
+                "./framework/devices/dolphin/config/Locations.txt"),
             render=True
         )
         self.game = SSBMGame(self.device, [self.agent], self.SAMPLING_WINDOW)
@@ -36,7 +35,16 @@ class Session():
 
 
 def __main():
-    session = Session()
+    parser = argparse.ArgumentParser(
+        description='Launch Dolphin and setup AI agent.'
+    )
+    parser.add_argument('--dolphin-bin', dest='dolphin_bin',
+                        help='Path to Dolphin binary')
+    parser.add_argument('--game-iso', dest='game_iso',
+                        help='Path to game ISO file')
+
+    args = parser.parse_args()
+    session = Session(args)
     session.start_session()
 
 
