@@ -73,9 +73,15 @@ It plays! :fireworks: :beer:
 
 **TODO**:
 
-* Fix dolphin controller updates
-
-* Load game from beginning, set up correct controllers, pipes and inputs
+* Investigate menu states, read from Dolphin memory directly
+  * Recover from menu issues, game failures, bot wonkiness
+* Train new agent with loooots of data
+  * Work out a good reward function
+  * Do proper Batching
+* Test our DQN against known good environment - OpenAI (FrozenLake, HillRide etc)
+* Minimize action space - lots of redudant, useless actions doing the same thing
+* Configure headless environment - run in Docker
+* Train against highest level default bot online
 * Add device config object to pass into each device class
 
 # Tests
