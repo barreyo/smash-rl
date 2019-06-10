@@ -9,10 +9,10 @@ from framework.reward import Reward
 class SimpleSSBMReward(Reward):
 
     LIFE_LOSS_COST = -1.0
-    LIFE_INFLICT_COST = 1.0
-    STOCK_LOSS_COST = -100.0
-    STOCK_INFLICT_COST = 100.0
-    TIMESTEP_COST = -0.05
+    LIFE_INFLICT_COST = 5.0
+    STOCK_LOSS_COST = -300.0
+    STOCK_INFLICT_COST = 500.0
+    TIMESTEP_COST = 0
 
     def cost(self, current_observation: Observation,
              historical_observations: List[Observation], step: int) -> float:
