@@ -48,6 +48,7 @@ def run_offline_training_sequence(
     log.info('Formatting data')
 
     for game_idx, (max_g, unformatted_game) in enumerate(games):
+
         if unformatted_game is None:
             continue
 

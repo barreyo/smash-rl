@@ -77,15 +77,31 @@ def format_training_data(game: Game) -> List[List[
 
     s1, s2 = list(), list()
 
-    for frame in game.frames:
-        try:
-            p1_pre = frame.ports[0].leader.pre
-            p2_pre = frame.ports[2].leader.pre
+    valid_slots = [i for i, port in enumerate(game.frames[0].ports) if port is not None]
+    if len(valid_slots) != 2:
+        log.info("Invalid number of players. Skipping...")
+        return []
 
-            p1_post = frame.ports[0].leader.post
-            p2_post = frame.ports[2].leader.post
-        except AttributeError:
-            return []
+    p1_idx = valid_slots[0]
+    p2_idx = valid_slots[1]
+
+    error_frames = 0
+
+    for frame in game.frames:
+
+        try:
+            p1_pre = frame.ports[p1_idx].leader.pre
+            p2_pre = frame.ports[p2_idx].leader.pre
+
+            p1_post = frame.ports[p1_idx].leader.post
+            p2_post = frame.ports[p2_idx].leader.post
+        except AttributeError as e:
+            error_frames += 1
+            if error_frames > 10:
+                log.info(f"AttributeError: {e}")
+                return []
+            continue
+
 
         if is_valid_character(p1_post.character):
             p1_obs = SSBMObservation(Position(p1_pre.position.x,
