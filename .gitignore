@@ -8,6 +8,8 @@ src/
 data/
 *.pkl
 trained_dqn/
+*.iso
+Dolphin.app
 
 ###
 # --- OS X ---
