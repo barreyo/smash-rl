@@ -1,6 +1,7 @@
 
 import logging
 import time
+import copy
 from struct import pack, unpack
 from typing import List
 
@@ -10,7 +11,8 @@ from framework.agent import Agent
 from framework.devices.device import Device
 from framework.games.game import Game
 from framework.games.ssbm.ssbm_menu_helper import SSBMMenuHelper
-from framework.games.ssbm.ssbm_observation import SSBMObservation
+from framework.games.ssbm.ssbm_observation import SSBMObservation, Position
+from framework.games.ssbm.ssbm_reward import SimpleSSBMReward
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
@@ -44,6 +46,8 @@ class SSBMGame(Game):
         self.sampling_window = sampling_window
         self.machine = self._build_state_machine()
         self.menu_helper = SSBMMenuHelper(self.device.pad)
+        self.reward_calculator = SimpleSSBMReward()
+        self.all_obervations = []
         self.reset_state()
 
     def _build_state_machine(self):
@@ -77,7 +81,7 @@ class SSBMGame(Game):
 
         while True:
             address, value = self.device.read_state()
-            if address is not None: # None if socket times out first
+            if address is not None:  # None if socket times out first
                 self.update_observation(address, value)
 
             # Wait for stock information
@@ -89,9 +93,10 @@ class SSBMGame(Game):
             new_time = time.time()
             address, value = self.device.read_state()
 
-            if address is not None: # None if socket times out first
+            if address is not None:  # None if socket times out first
                 self.update_observation(address, value)
                 if self._is_done():
+                    self.save_agents()
                     self.finish_game()
                     break
 
@@ -103,18 +108,36 @@ class SSBMGame(Game):
         self.current_observation = SSBMObservation()
         self.last_update = time.time()
         self.frame_counter = 0
+        self.all_obervations = []
 
     def reset(self):
         self.device.pad.reset_button_state()
         self.reset_state()
         self.restart_game()
 
+    def save_agents(self):
+        for agent in self.agents:
+            agent.save()
+
     def update_agents(self, observation):
         for agent in self.agents:
             action = agent.act(observation, self.frame_counter)
-            print(f"Should take action: {action}")
+            # print(f"Should take action: {action}")
             self.device.set_button_state(action.as_slippi_bitmask())
 
+            if self.all_obervations:
+                reward = self.reward_calculator.cost(
+                    observation, self.all_obervations, self.frame_counter)
+                agent.learn(self.all_obervations[-1],
+                            observation, action, reward, 0.0)
+                print(f'Reward: {reward}')
+
+        previous_observation = SSBMObservation(
+            Position(observation.player_x, observation.player_y),
+            Position(observation.enemy_x, observation.enemy_y),
+            observation.player_stocks, observation.enemy_stocks,
+            observation.player_percent, observation.enemy_percent)
+        self.all_obervations.append(previous_observation)
         self.frame_counter += 1
 
     def update_observation(self, address, buffer):
@@ -128,7 +151,7 @@ class SSBMGame(Game):
 
     def _is_done(self):
         return self.current_observation.player_stocks <= 0 or \
-               self.current_observation.enemy_stocks <= 0
+            self.current_observation.enemy_stocks <= 0
 
     def on_enter_start_menu(self):
         self.menu_helper.go_to_character_select()
@@ -156,4 +179,4 @@ class SSBMGame(Game):
         time.sleep(2)
 
     def on_enter_game_done(self):
-        time.sleep(5) # Wait for stats screen to appear
+        time.sleep(5)  # Wait for stats screen to appear

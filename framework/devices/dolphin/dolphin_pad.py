@@ -64,7 +64,7 @@ class DolphinPad:
         self.pipe = open(self.path, 'w', buffering=1)
 
     def _send_to_pipe(self, msg):
-        log.info(msg)
+        # log.info(msg)
         current_time = time.time()
         sleep_time = self.last_command_time + self.MIN_COOLDOWN - current_time
         if sleep_time > 0:
