@@ -37,14 +37,22 @@ def _main():
         if game is None:
             continue
 
+        valid_slots = [i for i, port in enumerate(
+            game.frames[0].ports) if port is not None]
+        if len(valid_slots) != 2:
+            continue
+
+        p1_idx = valid_slots[0]
+        p2_idx = valid_slots[1]
+
         for frame in game.frames:
             # ICs is never played so do not worry about follower
             try:
-                p1_pre = frame.ports[0].leader.pre
-                p2_pre = frame.ports[2].leader.pre
+                p1_pre = frame.ports[p1_idx].leader.pre
+                p2_pre = frame.ports[p2_idx].leader.pre
 
-                p1_post = frame.ports[0].leader.post
-                p2_post = frame.ports[2].leader.post
+                p1_post = frame.ports[p1_idx].leader.post
+                p2_post = frame.ports[p2_idx].leader.post
             except AttributeError:
                 continue
 
