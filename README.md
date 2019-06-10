@@ -81,6 +81,7 @@ It plays! :fireworks: :beer:
 * Test our DQN against known good environment - OpenAI (FrozenLake, HillRide etc)
 * Minimize action space - lots of redudant, useless actions doing the same thing
 * Configure headless environment - run in Docker
+* Plot reward over time and other stats (avg, sum, etc)
 * Train against highest level default bot online
 * Add device config object to pass into each device class
 
