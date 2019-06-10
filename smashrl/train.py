@@ -31,7 +31,8 @@ def read_games(folder: str):
 def run_offline_training_sequence(
         agent: Agent,
         reward_calculator: Reward,
-        games: List[Game]) -> None:
+        games: List[Game],
+        per_game_iteration: int = 1) -> None:
     """
     Run a training sequence of a set of games.
 
@@ -54,36 +55,38 @@ def run_offline_training_sequence(
 
         formatted_games = format_training_data(unformatted_game)
 
-        log.info(f"Starting game: {game_idx + 1}/{max_g}")
-        for game in formatted_games:
+        for game_iteration in range(per_game_iteration):
+            log.info(f"Training on game: {game_idx + 1}/{max_g}, iteration: {game_iteration + 1}/{per_game_iteration}")
 
-            obs, action = game[0]
-            observations = [obs]
-            losses = []
-            rewards = []
+            for game in formatted_games:
 
-            for ts, (new_obs, next_action) in enumerate(game):
+                obs, action = game[0]
+                observations = [obs]
+                losses = []
+                rewards = []
 
-                reward = reward_calculator.cost(new_obs, observations, ts)
-                rewards.append(reward)
-                done = float(ts == (len(game) - 1))
+                for ts, (new_obs, next_action) in enumerate(game):
 
-                loss = agent.learn(obs, new_obs, action, reward, done)
-                losses.append(loss)
+                    reward = reward_calculator.cost(new_obs, observations, ts)
+                    rewards.append(reward)
+                    done = float(ts == (len(game) - 1))
 
-                # print(action)
+                    loss = agent.learn(obs, new_obs, action, reward, done)
+                    losses.append(loss)
 
-                if ts % 1000 == 0:
-                    log.info(f"TS: {ts}, Loss: {loss}, "
-                            f"Avg Reward: {np.average(rewards)}")
+                    # print(action)
 
-                obs, action = new_obs, next_action
+                    if ts % 1000 == 0:
+                        log.info(f"TS: {ts}, Loss: {loss}, "
+                                f"Avg Reward: {np.average(rewards)}")
 
-            log.info("Training summary:")
-            log.info(f"Average loss: {np.average(losses)}")
-            log.info(f"Average reward: {np.average(rewards)}")
-            log.info(f"Total TS: {len(game)}")
-            log.info("=====================")
+                    obs, action = new_obs, next_action
+
+                log.info("Training summary:")
+                log.info(f"Average loss: {np.average(losses)}")
+                log.info(f"Average reward: {np.average(rewards)}")
+                log.info(f"Total TS: {len(game)}")
+                log.info("=====================")
 
         agent.save()
 
