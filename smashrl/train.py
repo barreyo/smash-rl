@@ -1,6 +1,7 @@
 """Handle data formatting from replays and offline training of the Agent."""
 
 import logging
+import os
 import pickle
 import sys
 from typing import List
@@ -15,6 +16,16 @@ from smashrl.dataset import format_training_data
 from smashrl.ssbm_agent import SSBMAgent
 
 log = logging.getLogger(__name__)
+
+def read_games(folder: str):
+    files = [os.path.join(folder, x)
+             for x in os.listdir(folder) if x.endswith('.slp')]
+
+    for game in files:
+        try:
+            yield len(files), Game(game)
+        except Exception:
+            yield len(files), None
 
 
 def run_offline_training_sequence(
@@ -36,10 +47,14 @@ def run_offline_training_sequence(
     log.info('Starting training sequence')
     log.info('Formatting data')
 
-    for game_idx, unformatted_game in enumerate(games):
+    for game_idx, (max_g, unformatted_game) in enumerate(games):
+
+        if unformatted_game is None:
+            continue
+
         formatted_games = format_training_data(unformatted_game)
 
-        log.info(f"Starting game: {game_idx + 1}/{len(games)}")
+        log.info(f"Starting game: {game_idx + 1}/{max_g}")
         for game in formatted_games:
 
             obs, action = game[0]
@@ -47,7 +62,7 @@ def run_offline_training_sequence(
             losses = []
             rewards = []
 
-            for ts, (new_obs, next_action) in enumerate(game[1:]):
+            for ts, (new_obs, next_action) in enumerate(game):
 
                 reward = reward_calculator.cost(new_obs, observations, ts)
                 rewards.append(reward)
@@ -74,8 +89,7 @@ def run_offline_training_sequence(
 
 
 def _main():
-    with open(sys.argv[1], 'rb') as f:
-        dataset = pickle.load(f)
+    dataset = read_games(sys.argv[1])
 
     agent = SSBMAgent()
 
