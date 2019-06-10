@@ -88,7 +88,7 @@ class Dolphin(Device):
             pipes_dir.mkdir()
 
         if fifo_path.exists():
-            return
+            return fifo_path
 
         fifo_path = str(fifo_path)
         try:

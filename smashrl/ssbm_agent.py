@@ -1,6 +1,7 @@
 """The actual RL Agent"""
 
 import logging
+import os
 from pathlib import Path
 
 import numpy as np
@@ -54,12 +55,13 @@ class SSBMAgent(Agent):
         return self.q.train(observations, observations_next, actions, [reward], [done])
 
     def load(self, path='./trained_dqn/dqn.ckpt'):
-        if not Path(path).exists():
+        if not Path(os.path.dirname(path)).exists():
             log.info(
                 f'No pre-trained agent found in {path}... Running new model')
             return
 
-        self.q.load()
+        self.q.load(path)
 
     def save(self, path='./trained_dqn/dqn.ckpt'):
+        log.info('Saving agent...')
         return self.q.save(path)
