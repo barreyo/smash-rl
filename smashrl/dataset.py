@@ -134,7 +134,7 @@ def format_training_data(game: Game) -> List[List[
         training_data.append(s2)
 
     if s1 or s2:
-        winner = 'p1' if frame.ports[0].leader.post.stocks > 0 else 'p2'
+        winner = 'p1' if frame.ports[p1_idx].leader.post.stocks > 0 else 'p2'
         log.info(f'Winner: {winner}')
 
     return training_data
