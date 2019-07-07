@@ -1,0 +1,4 @@
+
+
+class StaleDeviceError(Exception):
+    pass

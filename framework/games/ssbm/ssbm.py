@@ -1,7 +1,7 @@
 
+import copy
 import logging
 import time
-import copy
 from struct import pack, unpack
 from typing import List
 
@@ -9,9 +9,10 @@ from transitions import Machine
 
 from framework.agent import Agent
 from framework.devices.device import Device
+from framework.games.exceptions import StaleDeviceError
 from framework.games.game import Game
 from framework.games.ssbm.ssbm_menu_helper import SSBMMenuHelper
-from framework.games.ssbm.ssbm_observation import SSBMObservation, Position
+from framework.games.ssbm.ssbm_observation import Position, SSBMObservation
 from framework.games.ssbm.ssbm_reward import SimpleSSBMReward
 
 logging.basicConfig(level=logging.DEBUG)
@@ -41,6 +42,8 @@ class SSBMGame(Game):
     STATES = ['not_started', 'start_menu',
               'character_selection', 'character_preselection', 'stage_selection', 'game_launched', 'game_done']
 
+    STALE_OBSERVATION_TIMEOUT = 5.0
+
     def __init__(self, device: Device, agents: List[Agent], sampling_window: float):
         super().__init__(device, agents=agents)
         self.sampling_window = sampling_window
@@ -53,6 +56,8 @@ class SSBMGame(Game):
     def _build_state_machine(self):
         machine = Machine(model=self, states=self.STATES,
                           initial='not_started')
+        machine.add_transition(trigger='reset_state_machine', source='*', dest=machine.initial)
+
         # Regular mode
         machine.add_transition(trigger='device_ready',
                                source='not_started', dest='start_menu')
@@ -79,6 +84,8 @@ class SSBMGame(Game):
     def run(self):
         assert self.state == 'game_launched'
 
+        run_time = time.time()
+
         while True:
             address, value = self.device.read_state()
             if address is not None:  # None if socket times out first
@@ -88,6 +95,12 @@ class SSBMGame(Game):
             if self.current_observation.player_stocks > 0 and \
                self.current_observation.enemy_stocks > 0:
                 break
+
+            # If we have not received an observation before the stale timeout, signal to restart
+            # We are in an invalid state
+            if time.time() > (run_time + self.STALE_OBSERVATION_TIMEOUT):
+                self.save_agents()
+                raise StaleDeviceError(f'Did not receive updates within {self.STALE_OBSERVATION_TIMEOUT} seconds')
 
         while True:
             new_time = time.time()
@@ -104,14 +117,20 @@ class SSBMGame(Game):
                 self.update_agents(self.current_observation)
                 self.last_update = time.time()
 
+    def hard_reset(self):
+        self.reset_state()
+        self.reset_state_machine()
+
     def reset_state(self):
         self.current_observation = SSBMObservation()
         self.last_update = time.time()
         self.frame_counter = 0
         self.all_obervations = []
 
-    def reset(self):
-        self.device.pad.reset_button_state()
+        if self.device.pad.is_connected():
+            self.device.pad.reset_button_state()
+
+    def restart(self):
         self.reset_state()
         self.restart_game()
 

@@ -52,6 +52,7 @@ class DolphinPad:
         self.path = path
         self.prev = Buttons.Logical.NONE
         self.last_command_time = time.time()
+        self.pipe = None
 
     def __del__(self, *args):
         """Closes the fifo."""
@@ -62,6 +63,9 @@ class DolphinPad:
 
     def connect(self):
         self.pipe = open(self.path, 'w', buffering=1)
+
+    def is_connected(self):
+        return self.pipe is not None
 
     def _send_to_pipe(self, msg):
         # log.info(msg)

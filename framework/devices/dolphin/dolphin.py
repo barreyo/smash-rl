@@ -31,6 +31,7 @@ class Dolphin(Device):
         self.iso_path = iso_path
         self.render = render
         self.pad = DolphinPad(self.fifo_path)
+        self.process = None
 
         # Make sure all config files exist and have correct content
         self.__create_controller_config()
@@ -138,7 +139,7 @@ class Dolphin(Device):
 
     def launch(self):
         # Device is already running, nothing to do here
-        if self.is_open:
+        if self.process:
             return
 
         command = [str(self.executable_path)]
@@ -159,7 +160,6 @@ class Dolphin(Device):
 
         # Set up controller
         self.pad.connect()
-        self.is_open = True
 
     def read_state(self):
         data = None
@@ -182,13 +182,13 @@ class Dolphin(Device):
         self.pad.set_button_state(state)
 
     def terminate(self):
-        if not self.is_open:
-            return
-
         if self.process != None:
-            self.process.terminate()
+            self.process.kill()
+        self.process = None
 
-        self.is_open = False
+    def restart(self):
+        self.terminate()
+        self.launch()
 
     def __del__(self):
         try:

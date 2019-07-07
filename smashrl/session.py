@@ -1,11 +1,14 @@
-
 import argparse
+import logging
+import time
 from pathlib import Path
 
 from framework.devices.dolphin.dolphin import Dolphin
+from framework.games.exceptions import StaleDeviceError
 from framework.games.ssbm.ssbm import SSBMGame
 from smashrl.ssbm_agent import SSBMAgent
 
+log = logging.getLogger(__name__)
 
 class Session():
 
@@ -28,8 +31,15 @@ class Session():
         self.game.netplay()
 
         while True:
-            self.game.run()
-            self.game.reset()
+            try:
+                self.game.run()
+                self.game.restart()
+            except StaleDeviceError:
+                log.info("Device is stale, restarting...")
+                self.device.restart()
+                self.game.hard_reset()
+                self.game.netplay()
+
         # self.device.close()
         # return self.game.result
 
