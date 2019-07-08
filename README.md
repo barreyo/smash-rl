@@ -73,6 +73,8 @@ It plays! :fireworks: :beer:
 
 **TODO**:
 
+* Figure out why running off the side, negative rewards wrong? Figure this shit
+  out
 * Investigate menu states, read from Dolphin memory directly
   * Recover from menu issues, game failures, bot wonkiness
 * Train new agent with loooots of data
