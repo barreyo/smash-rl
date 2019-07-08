@@ -2,6 +2,9 @@
 hypothesis
 numpy
 pip-tools
+pandas
 pytest
 tensorflow
 transitions
+matplotlib
+watchgod

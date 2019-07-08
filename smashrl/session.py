@@ -1,14 +1,17 @@
+
 import argparse
 import logging
-import time
 from pathlib import Path
 
 from framework.devices.dolphin.dolphin import Dolphin
 from framework.games.exceptions import StaleDeviceError
 from framework.games.ssbm.ssbm import SSBMGame
 from smashrl.ssbm_agent import SSBMAgent
+from framework.game_session import GameSession
+from framework.state_builders import SSBMDolphinBuilder
 
 log = logging.getLogger(__name__)
+
 
 class Session():
 
@@ -24,21 +27,26 @@ class Session():
                 "./framework/devices/dolphin/config/Locations.txt"),
             render=True
         )
-        self.game = SSBMGame(self.device, [self.agent], self.SAMPLING_WINDOW)
+        self.game = SSBMGame(
+            self.device, [self.agent], self.SAMPLING_WINDOW,
+            stats_file='stats.json')
+        self.game_session = GameSession(
+            self.agent, self.device, self.game, SSBMDolphinBuilder())
 
-    def start_session(self):
-        self.device.launch()
-        self.game.netplay()
+        self.game_session.start()
 
-        while True:
-            try:
-                self.game.run()
-                self.game.restart()
-            except StaleDeviceError:
-                log.info("Device is stale, restarting...")
-                self.device.restart()
-                self.game.hard_reset()
-                self.game.netplay()
+#    def start_session(self):
+        # self.game.netplay()
+
+        # while True:
+        #    try:
+        #        self.game.run()
+        #        self.game.restart()
+        #    except StaleDeviceError:
+        #        log.info("Device is stale, restarting...")
+        #        self.device.restart()
+        #        self.game.hard_reset()
+        #        self.game.netplay()
 
         # self.device.close()
         # return self.game.result
@@ -54,8 +62,7 @@ def __main():
                         help='Path to game ISO file')
 
     args = parser.parse_args()
-    session = Session(args)
-    session.start_session()
+    Session(args)
 
 
 if __name__ == "__main__":
