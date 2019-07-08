@@ -1,10 +1,10 @@
 -e git://github.com/barreyo/py-slippi.git#egg=py-slippi
 hypothesis
+matplotlib
 numpy
-pip-tools
 pandas
+pip-tools
 pytest
 tensorflow
 transitions
-matplotlib
 watchgod
