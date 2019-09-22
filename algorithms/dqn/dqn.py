@@ -23,6 +23,7 @@ class DQN():
                                            shape=[self.batch_size,
                                                   observation_size],
                                            name="observations")
+
         self.observations_next = tf.placeholder(tf.float32,
                                                 shape=[self.batch_size,
                                                        observation_size],
@@ -43,12 +44,16 @@ class DQN():
                                                    self.hidden_layers,
                                                    'DQN_Network')
 
+        # import pdb; pdb.set_trace()
+        # assert tf.shape(self.q_network) == [self.observation_size] + hidden_layers + [self.action_size]
+
         self.target_q_network = self._build_dense_network(
             self.observations_next, self.hidden_layers, 'target_DQN_Network')
 
         self.prediction = tf.reduce_sum(
             self.q_network * self.actions, reduction_indices=-1,
-            name='q_acted')
+            name='q_acted')  # type: ???
+
 
         max_q_prim = tf.reduce_max(self.target_q_network, axis=-1)
         y = self.rewards + (1.0 - self.done_flags) * self.gamma * max_q_prim
@@ -60,8 +65,10 @@ class DQN():
             self.learning_rate).minimize(self.loss)
 
         init = tf.initializers.global_variables()
+        self.writer = tf.summary.FileWriter('tf-output', self.session.graph)
         self.session.run(init)
         self.saver = tf.train.Saver()
+        self.writer.close()
 
     def _build_dense_network(self, inputs, hidden_layers, network_name):
         initializer = tf.contrib.layers.xavier_initializer()

@@ -9,7 +9,6 @@ import numpy as np
 from framework.action import Action
 from slippi.event import Buttons
 
-
 VALID_ACTIONS = np.load(os.path.dirname(__file__) + '/ssbm_actions.npy')
 N_LOGICAL_INPUTS = len(VALID_ACTIONS[0])
 N_ACTIONS = len(VALID_ACTIONS)
@@ -60,9 +59,13 @@ class SSBMAction(Action):
                                joystick_down, joystick_up, y, x, b, a, l,
                                r, z])
         self.__clamp_state()
+        self.__simplify_state()
 
     def __clamp_state(self):
         self.state = [1 if v > 0 else 0 for v in self.state]
+
+    def __simplify_state(self):
+        self.state = simplify_action(self.state)
 
     @classmethod
     def from_index(cls, index: int):
@@ -106,3 +109,41 @@ def reverse_action_lookup(controller_state: Union[np.array, SSBMAction]) -> int:
         return controller_state.as_index()
 
     return STATE_TO_INDEX_LOOKUP[tuple(controller_state)]
+
+
+def simplify_action(action: np.array) -> np.array:
+    # A before B
+    if action[11] + action[12] > 1:
+        action[11] = 0
+        action[12] = 1
+
+    # C stick before joystick
+    if action[1] + action[2] + action[3] + action[4] == 1:
+        action[5] = 0
+        action[6] = 0
+        action[7] = 0
+        action[8] = 0
+
+    # R before L
+    if action[13] == 1:
+        action[14] = 1
+        action[13] = 0
+
+    # Y before X
+    if action[9] == 1:
+        action[10] = 1
+        action[9] = 0
+
+    # Z before anything
+    if action[15] == 1:
+        action = [0] * 16
+        action[15] = 1
+
+    # Only joystick with block
+    if action[14] == 1:
+        joystick = action[5:9].copy()
+        action = [0] * 16
+        action[14] = 1
+        action[5:9] = joystick
+
+    return action
