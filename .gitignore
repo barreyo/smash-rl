@@ -11,6 +11,7 @@ trained_dqn/
 *.iso
 Dolphin.app
 tf-output/
+stats.json
 
 ###
 # --- OS X ---

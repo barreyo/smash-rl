@@ -16,7 +16,7 @@ class DQN():
         self.batch_size = batch_size
         self.gamma = gamma
 
-        self.hidden_layers = [128, 128, 64]
+        self.hidden_layers = [256, 256, 128]
 
         # TF placeholders
         self.observations = tf.placeholder(tf.float32,
