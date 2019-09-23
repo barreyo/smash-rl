@@ -118,7 +118,7 @@ class Dolphin(Device):
         home_dir = Path.home()
 
         # Linux legacy
-        linux_legacy_path = home_dir / '.dolphin-emu'
+        linux_legacy_path = home_dir / '.config' / 'dolphin-emu'
         if linux_legacy_path.is_dir():
             return linux_legacy_path
 
