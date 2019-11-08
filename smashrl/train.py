@@ -2,7 +2,6 @@
 
 import logging
 import os
-import pickle
 import sys
 from typing import List
 
@@ -16,6 +15,7 @@ from smashrl.dataset import format_training_data
 from smashrl.ssbm_agent import SSBMAgent
 
 log = logging.getLogger(__name__)
+
 
 def read_games(folder: str):
     files = [os.path.join(folder, x)
@@ -56,7 +56,9 @@ def run_offline_training_sequence(
         formatted_games = format_training_data(unformatted_game)
 
         for game_iteration in range(per_game_iteration):
-            log.info(f"Training on game: {game_idx + 1}/{max_g}, iteration: {game_iteration + 1}/{per_game_iteration}")
+            log.info(
+                f"Training on game: {game_idx + 1}/{max_g}, "
+                f"iteration: {game_iteration + 1}/{per_game_iteration}")
 
             for game in formatted_games:
 
@@ -74,11 +76,9 @@ def run_offline_training_sequence(
                     loss = agent.learn(obs, new_obs, action, reward, done)
                     losses.append(loss)
 
-                    # print(action)
-
                     if ts % 1000 == 0:
                         log.info(f"TS: {ts}, Loss: {loss}, "
-                                f"Avg Reward: {np.average(rewards)}")
+                                 f"Avg Reward: {np.average(rewards)}")
 
                     obs, action = new_obs, next_action
 
@@ -100,7 +100,8 @@ def _main():
     # agent.load()
 
     reward = SimpleSSBMReward()
-    run_offline_training_sequence(agent, reward, dataset, per_game_iteration=10)
+    run_offline_training_sequence(
+        agent, reward, dataset, per_game_iteration=10)
 
     agent.save()
 
