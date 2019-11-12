@@ -2,7 +2,8 @@
 
 import logging
 import os
-import sys
+from multiprocessing import Pool
+from pathlib import Path
 from typing import List
 
 import numpy as np
@@ -13,6 +14,7 @@ from framework.reward import Reward
 from slippi import Game
 from smashrl.dataset import format_training_data
 from smashrl.ssbm_agent import SSBMAgent
+from tools.scraper.scrape import get_all_replays
 
 log = logging.getLogger(__name__)
 
@@ -92,12 +94,21 @@ def run_offline_training_sequence(
 
 
 def _main():
-    dataset = read_games(sys.argv[1])
+    # dataset = read_games(sys.argv[1])
+
+    Path('./data/').mkdir(exist_ok=True, parents=True)
+    p = Pool(20)
+    for t in [3, 40]:  # Tournaments
+        get_all_replays(t)
+    p.terminate()
+    p.join()
 
     agent = SSBMAgent()
 
     # TODO: Load pre-trained model
-    # agent.load()
+    # agent.load(
+
+    dataset = read_games('data/')
 
     reward = SimpleSSBMReward()
     run_offline_training_sequence(
