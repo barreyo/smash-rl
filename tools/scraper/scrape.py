@@ -59,6 +59,8 @@ query GameTableComponent($id: Int!, $matchupDisplayFirst: Int!, $matchupDisplayO
 }
 """  # noqa
 
+p = Pool(20)
+
 
 def generate_payload(tournament, first, offset):
     return {
@@ -113,7 +115,6 @@ def download_file(url):
 
 if __name__ == "__main__":
     Path('./data/').mkdir(exist_ok=True, parents=True)
-    p = Pool(20)
     for t in [3, 40]:  # Tournaments
         get_all_replays(t)
     p.terminate()
