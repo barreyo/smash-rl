@@ -1,11 +1,11 @@
 
-import os
-import shutil
 import traceback
 from multiprocessing import Pool
 from pathlib import Path
 
 import requests
+
+from tools.scraper.utils import download_file
 
 BASE_URL = 'https://api-js-dot-slippi.appspot.com/'
 DL_URL = 'https://storage.googleapis.com/slippi.appspot.com{replay_path}'
@@ -104,18 +104,13 @@ def download_replays(replays):
     p.map(download_file, files)
 
 
-def download_file(url):
-    print("Downloading replay: {}".format(url))
-    local_filename = os.path.join('./data', url.split('/')[-1])
-    r = requests.get(DL_URL.format(replay_path=url), stream=True)
-    with open(local_filename, 'wb+') as f:
-        r.raw.decode_content = True
-        shutil.copyfileobj(r.raw, f)
-
-
-if __name__ == "__main__":
-    Path('./data/').mkdir(exist_ok=True, parents=True)
+def _main(data_dir):
+    Path(data_dir).mkdir(exist_ok=True, parents=True)
     for t in [3, 40]:  # Tournaments
         get_all_replays(t)
     p.terminate()
     p.join()
+
+
+if __name__ == "__main__":
+    _main('./data')
