@@ -5,16 +5,22 @@ DATA_DIR 			?= data/
 REQUIREMENTS_IN 	?= requirements.in
 REQUIREMENTS_TXT 	?= requirements.txt
 
+GIT_VERSION 		:= $(shell git rev-parse --verify HEAD)
+
 # Formatting variables
 BOLD 			:= $(shell tput bold)
 RESET 			:= $(shell tput sgr0)
 
-.PHONY: offline-training tests dep-update dep-install clean help
+.PHONY: docker-image offline-training tests dep-update dep-install clean help
 
 offline-training:  ## Run SmashRL offline training with all replays available
 	if [ ! -d "$(DATA_DIR)" ]; then python3.6 -m tools.scraper.scrape; fi
 	if [ -n "$(find "$(DATA_DIR)" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then python3.6 -m tools.scraper.scrape; fi
 	python3.6 -m smashrl.train $(DATA_DIR)
+
+docker-image:  ## Build docker image to run training inside
+	@echo "$(BOLD)Building docker image version $(GIT_VERSION)...$(RESET)"
+	docker build -t $(PROJECT_NAME):latest -f Dockerfile .
 
 tests:  ## Run all tests using PyTest
 	@python3.6 -m pytest -vx -s $(TESTS_DIR)
