@@ -18,7 +18,7 @@ class Session():
     SAMPLING_WINDOW = 1.0/15.0
 
     def __init__(self, args):
-        self.agent = SSBMAgent(inference_only=True)
+        self.agent = SSBMAgent(inference_only=False)
         self.agent.load()
         self.device = Dolphin(
             executable_path=Path(args.dolphin_bin),

@@ -101,7 +101,7 @@ def _main(training_data):
 
     reward = SimpleSSBMReward()
     run_offline_training_sequence(
-        agent, reward, dataset, per_game_iteration=10)
+        agent, reward, dataset, per_game_iteration=1)
 
     agent.save()
 

@@ -25,8 +25,8 @@ class SSBMAgent(Agent):
         self.q = DQN(
             observation_size=SSBMObservation.size(),
             action_size=self.action_space.n_actions,
-            learning_rate=0.01,
-            gamma=0.9,
+            learning_rate=0.001,
+            gamma=0.95,
             batch_size=1
         )
         self.e_greedy = EGreedy()

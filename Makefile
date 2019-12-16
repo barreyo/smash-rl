@@ -13,6 +13,8 @@ RESET 			:= $(shell tput sgr0)
 
 .PHONY: docker-image offline-training tests dep-update dep-install clean help
 
+.DEFAULT_GOAL := help
+
 offline-training:  ## Run SmashRL offline training with all replays available
 	if [ ! -d "$(DATA_DIR)" ]; then python3.6 -m tools.scraper.scrape; fi
 	if [ -n "$(find "$(DATA_DIR)" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then python3.6 -m tools.scraper.scrape; fi

@@ -17,6 +17,7 @@ class DQN():
         self.gamma = gamma
 
         self.hidden_layers = [256, 256, 128]
+        self.hidden_layers = [1024, 1024, 512]
 
         # TF placeholders
         self.observations = tf.placeholder(tf.float32,
@@ -53,7 +54,6 @@ class DQN():
         self.prediction = tf.reduce_sum(
             self.q_network * self.actions, reduction_indices=-1,
             name='q_acted')  # type: ???
-
 
         max_q_prim = tf.reduce_max(self.target_q_network, axis=-1)
         y = self.rewards + (1.0 - self.done_flags) * self.gamma * max_q_prim

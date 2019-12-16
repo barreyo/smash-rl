@@ -1,7 +1,11 @@
 
-import pandas as pd
+import logging
+
 import matplotlib.pyplot as plt
+import pandas as pd
 from watchgod import AllWatcher, run_process
+
+log = logging.getLogger(__name__)
 
 
 def _main():
@@ -11,7 +15,7 @@ def _main():
 
 def plot_stuff():
     df = pd.read_json('stats.json')
-    print(df)
+    log.info(df)
     plt.close()
     plt.plot(df.total_reward)
     plt.show()

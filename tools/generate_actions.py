@@ -1,12 +1,16 @@
 """Prints a .slp file frame by frame."""
 
+import logging
 import os
+
 import numpy as np
 
+from framework.games.ssbm.ssbm_action import SSBMAction
+from framework.games.ssbm.ssbm_observation import SSBMObservation
 from slippi import Game
 from slippi.event import Buttons
-from framework.games.ssbm.ssbm_action import SSBMAction, STATE_TO_INDEX_LOOKUP
-from framework.games.ssbm.ssbm_observation import SSBMObservation
+
+log = logging.getLogger(__name__)
 
 
 def bitfield(n):
@@ -32,7 +36,7 @@ def _main():
     possible_actions = set()
     result = []
     for n, (max_g, game) in enumerate(games):
-        print(f'Working on game {n + 1} of {max_g}')
+        log.info(f'Working on game {n + 1} of {max_g}')
 
         if game is None:
             continue
@@ -64,11 +68,11 @@ def _main():
 
             button_set.add(p1_pre.buttons.logical)
             button_set.add(p2_pre.buttons.logical)
-            # print(f'B: {p1_pre.buttons}')
+            # log.info(f'B: {p1_pre.buttons}')
 
-            # print(f'i={frame.index} S={frame_obs}')
+            # log.info(f'i={frame.index} S={frame_obs}')
 
-    # print(len(button_set))
+    # log.info(len(button_set))
 
     for b in button_set:
         res = SSBMAction()
@@ -107,12 +111,12 @@ def _main():
 
         possible_actions.add(tuple(res.state))
 
-    print(f'Actions found: {len(possible_actions)}')
+    log.info(f'Actions found: {len(possible_actions)}')
 
     for possible in possible_actions:
         action = np.array(list(possible))
         result.append(action)
-        # print(f'np.array([{str(possible)[1:-1]}]),')
+        # log.info(f'np.array([{str(possible)[1:-1]}]),')
 
     np.save('new_actions_file', np.array(result))
 

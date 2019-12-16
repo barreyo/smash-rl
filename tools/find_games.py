@@ -1,5 +1,6 @@
 """Prints a .slp file frame by frame."""
 
+import logging
 import os
 from multiprocessing import Pool
 
@@ -9,16 +10,18 @@ from slippi.id import CSSCharacter, Stage
 STAGES = [Stage.BATTLEFIELD, Stage.FINAL_DESTINATION]
 CHARACTERS = [CSSCharacter.FOX]
 
+log = logging.getLogger(__name__)
+
 
 def is_valid(f):
     try:
-        print(f"Scanning {f}")
+        log.info(f"Scanning {f}")
         game = Game(os.path.join('./data', f))
         all_characters = [p.character for p in game.start.players
                           if p is not None]
 
         if game.start.stage in STAGES and \
-           len(set(all_characters) & set(CHARACTERS)) > 0:
+                len(set(all_characters) & set(CHARACTERS)) > 0:
             return True
         return False
     except Exception:

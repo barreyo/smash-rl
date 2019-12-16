@@ -83,7 +83,7 @@ class SSBMGame(Game):
         if not self.prev_meta_updates or \
                 self.prev_meta_updates[-1] != update_data:
             self.prev_meta_updates.append(update_data)
-        print(self.prev_meta_updates)
+        log.info(self.prev_meta_updates)
 
         if update_data == 6 and self.state == 'not_started':
             # Enter actual gameplay
@@ -133,7 +133,7 @@ class SSBMGame(Game):
     def update_agents(self, observation: SSBMObservation):
         for agent in self.agents:
             action = agent.act(observation, self.frame_counter)
-            # print(f"Should take action: {action}")
+            # log.info(f"Should take action: {action}")
             self.device.set_button_state(action.as_slippi_bitmask())
 
             if self.all_obervations:
@@ -142,7 +142,7 @@ class SSBMGame(Game):
                 self.total_game_reward += reward
                 agent.learn(self.all_obervations[-1],
                             observation, action, reward, 0.0)
-                print(f'Reward: {reward}')
+                log.info(f'Reward: {reward}')
 
         previous_observation = SSBMObservation(
             Position(observation.player_x, observation.player_y),

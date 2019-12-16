@@ -1,11 +1,15 @@
 
+import logging
+
 import numpy as np
+
+log = logging.getLogger(__name__)
 
 actions = np.load('./framework/games/ssbm/ssbm_actions.npy')
 
 actions = list([list(x) for x in actions])
 
-print(len(actions))
+log.info(len(actions))
 
 for i, r in enumerate(actions):
 
@@ -50,4 +54,4 @@ actions = set([tuple(a) for a in actions])
 actions = np.array([np.array(a) for a in actions])
 np.save('./framework/games/ssbm/ssbm_actions.npy', actions)
 
-print(len(actions))
+log.info(len(actions))

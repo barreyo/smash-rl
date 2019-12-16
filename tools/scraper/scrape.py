@@ -1,4 +1,5 @@
 
+import logging
 import traceback
 from multiprocessing import Pool
 from pathlib import Path
@@ -6,6 +7,8 @@ from pathlib import Path
 import requests
 
 from tools.scraper.utils import download_file
+
+log = logging.getLogger(__name__)
 
 BASE_URL = 'https://api-js-dot-slippi.appspot.com/'
 DL_URL = 'https://storage.googleapis.com/slippi.appspot.com{replay_path}'
@@ -77,7 +80,7 @@ def generate_payload(tournament, first, offset):
 def get_all_replays(tournament):
     offset = 0
     while True:
-        print("Getting page with offset: {}".format(offset))
+        log.info("Getting page with offset: {}".format(offset))
         more = get_replays(tournament, PER_PAGE, offset)
         offset += PER_PAGE
         if not more:
@@ -94,7 +97,7 @@ def get_replays(tournament, first, offset):
         else:
             return False
     except Exception as e:
-        print("Saw issue: {e}".format(e=e))
+        log.info("Saw issue: {e}".format(e=e))
         traceback.print_exc()
 
 
