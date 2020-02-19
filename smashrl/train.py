@@ -91,6 +91,10 @@ def run_offline_training_sequence(
         agent.save()
 
 
+def __save_agent_to_s3():
+    s3_resource = boto3.resource("s3", region_name="us-west-2")
+
+
 def _main(training_data):
     dataset = read_games(training_data)
 

@@ -32,6 +32,7 @@ class SSBMGame(Game):
                  sampling_window: float,
                  stats_file=None):
         super().__init__(device, agents=agents, stats_file=stats_file)
+        self.n_games = 0
         self.sampling_window = sampling_window
         self.machine = self._build_state_machine()
         self.menu_helper = SSBMMenuHelper(self.device.pad)
@@ -118,6 +119,7 @@ class SSBMGame(Game):
         self.all_obervations = []
         self.total_game_reward = 0
         self.prev_meta_updates = []
+        self.n_games += 1
 
         if self.device.pad.is_connected():
             self.device.pad.reset_button_state()
@@ -132,7 +134,7 @@ class SSBMGame(Game):
 
     def update_agents(self, observation: SSBMObservation):
         for agent in self.agents:
-            action = agent.act(observation, self.frame_counter)
+            action = agent.act(observation, self.n_games)
             # log.info(f"Should take action: {action}")
             self.device.set_button_state(action.as_slippi_bitmask())
 

@@ -1,12 +1,13 @@
 -e git://github.com/barreyo/py-slippi.git#egg=py-slippi
+h5py
 hypothesis
 matplotlib
 numpy
 pandas
 pip-tools
 pytest
+pyyaml
+requests
 tensorflow
 transitions
 watchgod
-requests
-

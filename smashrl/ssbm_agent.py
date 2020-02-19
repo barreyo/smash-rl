@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from algorithms.dqn.dqn import DQN
+from algorithms.dqn_v2.dqn import DQNv2
 from algorithms.e_greedy.e_greedy import EGreedy
 from framework.agent import Agent
 from framework.games.ssbm.ssbm_action import SSBMAction
@@ -22,12 +22,12 @@ class SSBMAgent(Agent):
     def __init__(self, inference_only=False):
         super().__init__(SSBMActionSpace())
         self.inference_only = inference_only
-        self.q = DQN(
+        self.q = DQNv2(
             observation_size=SSBMObservation.size(),
             action_size=self.action_space.n_actions,
             learning_rate=0.001,
             gamma=0.95,
-            batch_size=1
+            batch_size=4
         )
         self.e_greedy = EGreedy()
 
@@ -36,8 +36,7 @@ class SSBMAgent(Agent):
             return self.action_space.random_action()
 
         actions = self.q.predict(observation.as_array())
-        best_action = np.argmax(actions)
-        return SSBMAction.from_index(best_action)
+        return actions[0]
 
     # TODO: Update learn to take in lists of everything for proper batching
     def learn(self, observation: SSBMObservation,
@@ -52,7 +51,8 @@ class SSBMAgent(Agent):
         observations_next = [o.as_array() for o in batched_observations_next]
         actions = [a.as_array() for a in batched_actions]
 
-        return self.q.train(observations, observations_next, actions, [reward], [done])
+        return self.q.train(
+            observations, observations_next, [action.as_index()], [reward], [done])
 
     def load(self, path='./trained_dqn/dqn.ckpt'):
         if not Path(os.path.dirname(path)).exists():

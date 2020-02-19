@@ -1,14 +1,15 @@
 
-from typing import Any, List
+from typing import Any, List, Text
 
 import tensorflow as tf
+from tensorflow import keras
 
 
 class DQN():
 
     def __init__(self, observation_size: int, action_size: int,
                  learning_rate: float, gamma: float, batch_size: int = 32,
-                 name: str = 'DQNetwork'):
+                 name: Text = 'DQNetwork'):
         self.session = tf.Session()
         self.observation_size = observation_size
         self.action_size = action_size
@@ -16,7 +17,7 @@ class DQN():
         self.batch_size = batch_size
         self.gamma = gamma
 
-        self.hidden_layers = [256, 256, 128]
+        self.hidden_layers = [512, 512, 256]
         self.hidden_layers = [1024, 1024, 512]
 
         # TF placeholders
@@ -45,15 +46,12 @@ class DQN():
                                                    self.hidden_layers,
                                                    'DQN_Network')
 
-        # import pdb; pdb.set_trace()
-        # assert tf.shape(self.q_network) == [self.observation_size] + hidden_layers + [self.action_size]
-
         self.target_q_network = self._build_dense_network(
             self.observations_next, self.hidden_layers, 'target_DQN_Network')
 
         self.prediction = tf.reduce_sum(
             self.q_network * self.actions, reduction_indices=-1,
-            name='q_acted')  # type: ???
+            name='q_acted')
 
         max_q_prim = tf.reduce_max(self.target_q_network, axis=-1)
         y = self.rewards + (1.0 - self.done_flags) * self.gamma * max_q_prim
@@ -109,8 +107,8 @@ class DQN():
             feed_dict=feed_dict)
         return loss
 
-    def save(self, path: str):
+    def save(self, path: Text):
         return self.saver.save(self.session, path)
 
-    def load(self, path: str):
+    def load(self, path: Text):
         self.saver.restore(self.session, path)

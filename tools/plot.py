@@ -17,7 +17,7 @@ def plot_stuff():
     df = pd.read_json('stats.json')
     log.info(df)
     plt.close()
-    plt.plot(df.total_reward)
+    plt.plot(df)
     plt.show()
 
 
