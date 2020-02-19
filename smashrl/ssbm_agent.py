@@ -27,7 +27,7 @@ class SSBMAgent(Agent):
             action_size=self.action_space.n_actions,
             learning_rate=0.001,
             gamma=0.95,
-            batch_size=4
+            batch_size=32
         )
         self.e_greedy = EGreedy()
 
