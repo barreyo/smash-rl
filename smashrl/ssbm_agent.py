@@ -27,7 +27,7 @@ class SSBMAgent(Agent):
             action_size=self.action_space.n_actions,
             learning_rate=0.001,
             gamma=0.95,
-            batch_size=32
+            batch_size=1
         )
         self.e_greedy = EGreedy()
 
@@ -49,7 +49,6 @@ class SSBMAgent(Agent):
 
         observations = [o.as_array() for o in batched_observations]
         observations_next = [o.as_array() for o in batched_observations_next]
-        actions = [a.as_array() for a in batched_actions]
 
         return self.q.train(
             observations, observations_next, [action.as_index()], [reward], [done])

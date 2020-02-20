@@ -11,7 +11,7 @@ from tensorflow import keras
 class DQNv2():
 
     def __init__(self, observation_size: int, action_size: int,
-                 learning_rate: float, gamma: float, batch_size: int = 12,
+                 learning_rate: float, gamma: float, batch_size: int = 32,
                  name: Text = 'DQNetwork'):
         self.session = tf.compat.v1.Session()
         self.observation_size = observation_size
@@ -29,7 +29,7 @@ class DQNv2():
 
         # Input layer
         model.add(keras.layers.Dense(
-            256, input_dim=self.observation_size,
+            32, input_dim=self.observation_size,
             activation='relu'))
 
         # Hidden layers
